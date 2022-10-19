@@ -2,7 +2,8 @@ stages:
     - test
 
 unit-test:
-    stage: testimage: python:3.10
+    stage: test
+    image: python:3.10
     script:
         - pip install pytest pytest-cov
         - python -m pytest --cov-report-html --cov=src .
