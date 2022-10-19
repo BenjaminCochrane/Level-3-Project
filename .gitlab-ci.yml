@@ -3,6 +3,8 @@ stages:
 
 unit-test:
     stage: test
+    tags:
+        - docker
     image: python:3.10
     script:
         - pip install pytest pytest-cov
