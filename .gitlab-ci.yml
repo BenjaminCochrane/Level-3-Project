@@ -20,6 +20,7 @@ lint:
     tags:
         - docker
     image: "python:latest"
+    allow_failure: true
     script:
         - pip install pylint
         - pylint src/
