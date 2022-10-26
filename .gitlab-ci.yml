@@ -12,7 +12,7 @@ unit-test:
         - pip install pytest pytest-cov
         - python -m pytest --cov-report=html --cov=src .
         - coverage report --omit=venv/*
-    coverage: '/TOTAL.*\s+(\d+\%)'
+    coverage: '/TOTAL.*\s+(\d+\%)/'
     artifacts:
         paths:
             - coverage
