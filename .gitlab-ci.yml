@@ -7,10 +7,10 @@ unit-test:
     tags:
         - docker
     image: "python:latest"
-    coverage: ^TOTAL.+?(\d+\%)$
     script:
         - pip install pytest pytest-cov
         - python -m pytest --cov-report=html --cov=src .
+        - python pytest tests/
     artifacts:
         paths:
             - coverage
