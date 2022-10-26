@@ -10,7 +10,7 @@ unit-test:
     script:
         - pip install pytest pytest-cov
         - python -m pytest --cov-report=html --cov=src .
-        - python -m pytest --cov=sh16-main tests/
+        - python -m pytest --cov=src .
     artifacts:
         paths:
             - coverage
