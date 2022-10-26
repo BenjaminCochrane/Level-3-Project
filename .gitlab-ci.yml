@@ -10,7 +10,7 @@ unit-test:
     script:
         - pip install pytest pytest-cov
         - python -m pytest --cov-report=html --cov=src .
-        - python pytest tests/
+        - python -m pytest tests/
     artifacts:
         paths:
             - coverage
