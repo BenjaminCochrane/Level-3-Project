@@ -8,8 +8,11 @@ unit-test:
         - docker
     image: "python:latest"
     script:
+        - python -m pip install --upgrade pip
         - pip install pytest pytest-cov
         - python -m pytest --cov-report=html --cov=src .
+        - coverage report --omit=venv/*
+    coverage: '/TOTAL.*\s+(\d+\%)/'
     artifacts:
         paths:
             - coverage
