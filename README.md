@@ -1,5 +1,9 @@
 # SH16 Main
 
+## Badges
+[![pipeline status](https://stgit.dcs.gla.ac.uk/team-project-h/2022/sh16/sh16-main/badges/create_badges/pipeline.svg)](https://stgit.dcs.gla.ac.uk/team-project-h/2022/sh16/sh16-main/-/commits/main)
+[![coverage report](https://stgit.dcs.gla.ac.uk/team-project-h/2022/sh16/sh16-main/badges/create_badges/coverage.svg)](https://stgit.dcs.gla.ac.uk/team-project-h/2022/sh16/sh16-main/-/commits/main)
+
 This README has been edited and commited (test).
 
 
