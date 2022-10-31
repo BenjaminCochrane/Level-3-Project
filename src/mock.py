@@ -8,7 +8,7 @@ from pathlib import Path
 class Mock():
 	def __init__(self):
 		"""Constructor function for Mock class"""
-		p = os.path.abspath(os.path.join(os.path.dirname('data.csv'),'..','data.csv'))
+		p = os.path.abspath(os.path.join(os.path.dirname('data.csv'),'data.csv'))
 		self.data = pd.read_csv(p)
 		self.counter = 0
 		self.data = self.data[0:self.data.count().min()]
