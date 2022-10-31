@@ -32,7 +32,7 @@ def test_node_id() -> None:
     x,y, node_id = mock_obj.get_latest()
     assert (type(node_id) == type(str))
 
-def test_point_validity() - None:
+def test_point_validity() -> None:
     """Test that the points are reasonable"""
 
     for i in range(0,10):
