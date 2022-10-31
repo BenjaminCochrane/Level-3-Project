@@ -5,8 +5,7 @@ Tests for the mocking of data
 import pytest
 import sys
 
-from src.mock import mock
-#mock should be a class here I believe
+from src.mock import Mock
 mock_obj = Mock()
 
 def test_mock_datatype() -> None:
