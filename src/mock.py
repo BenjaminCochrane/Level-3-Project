@@ -10,10 +10,17 @@ class Mock():
     """Class to mock data for graph"""
 
     def __init__(self):
-        """Constructor function for Mock class"""
+        """Constructor function for Mock class, try/except block accounts for local testing 
+        and Docker testing"""
+
+        try:
+        	path = os.path.abspath(os.path.join(os.path.dirname('data.csv'),'data.csv'))
+        	self.data = pd.read_csv(path)
+        except FileNotFoundError:
+        	path = os.path.abspath(os.path.join(os.path.dirname('data.csv'),'..','data.csv'))
+        	self.data = pd.read_csv(path)
+
         
-        path = os.path.abspath(os.path.join(os.path.dirname('data.csv'),'data.csv'))
-        self.data = pd.read_csv(path)
         self.counter = 0
         self.data = self.data[0:self.data.count().min()]
 
