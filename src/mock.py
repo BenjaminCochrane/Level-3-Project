@@ -2,30 +2,34 @@
 Data Mocking as a class
 """
 
-import pandas as pd
 import os
-from pathlib import Path
+
+import pandas as pd
+
 class Mock():
-	def __init__(self):
-		"""Constructor function for Mock class"""
-		p = os.path.abspath(os.path.join(os.path.dirname('data.csv'),'data.csv'))
-		self.data = pd.read_csv(p)
-		self.counter = 0
-		self.data = self.data[0:self.data.count().min()]
+    """Class to mock data for graph"""
 
-	def get_latest(self) -> tuple:
-		"""Returns a tuple containing the nodeID , time (x) , and RSSI (y)"""
+    def __init__(self):
+        """Constructor function for Mock class"""
+        
+        path = os.path.abspath(os.path.join(os.path.dirname('data.csv'),'..','data.csv'))
+        self.data = pd.read_csv(path)
+        self.counter = 0
+        self.data = self.data[0:self.data.count().min()]
 
-		nodeID = self.__class__.__name__
-		x = self.data["Time"][self.counter]
-		y = self.data["Sensor"][self.counter]
-		self.counter += 1
-		return (x,y,nodeID)
-	
-	def __str__(self):
-		"""Return data as a string"""
-		return repr(self.data)
+    def get_latest(self) -> tuple:
+        """Returns a tuple containing the nodeID , time (x) , and RSSI (y)"""
+
+        node_id = self.__class__.__name__
+        time = self.data["Time"][self.counter]
+        sensor = self.data["Sensor"][self.counter]
+        self.counter += 1
+        return (time,sensor,node_id)
+
+    def __str__(self):
+        """Return data as a string"""
+        return repr(self.data)
 
 if __name__ == "__main__":
-	a = Mock()
-	print(a.get_latest())
+    a = Mock()
+    print(a.get_latest())

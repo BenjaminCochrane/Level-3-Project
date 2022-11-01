@@ -37,3 +37,8 @@ def test_point_validity() -> None:
     for i in range(0,10):
         x,y,node_id = mock_obj.get_latest()
         assert (-80 < y < -60)
+
+def test_string_representation() -> None:
+    """Test string representation"""
+
+    assert(type(str(Mock)) == str)
