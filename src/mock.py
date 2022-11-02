@@ -21,7 +21,7 @@ class Mock():
             self.data = pd.read_csv(path)
 
         self.counter = 0
-        self.count = self.data.count()
+        self.count = self.data.count().min()
         self.data = self.data[0:self.data.count().min()]
 
     def get_latest(self) -> tuple:
