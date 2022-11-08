@@ -31,7 +31,9 @@ class Mock():
         time = self.data["Time"][self.counter % self.count]
         sensor = self.data["Diff"][self.counter % self.count]
         self.counter += 1
-        return (time,sensor,node_id)
+        if self.counter > self.count:
+            time += (self.counter-self.count) * self.data["Time"][0]
+        return (float(time),float(sensor),node_id)
 
     def __str__(self):
         """Return data as a string"""

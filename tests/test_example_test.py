@@ -4,6 +4,7 @@ Tests for test_example, these tests should never fail
 
 import pytest
 import sys
+sys.path.append("..")
 
 from src.test_example import main
 
