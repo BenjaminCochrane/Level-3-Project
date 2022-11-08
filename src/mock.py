@@ -28,7 +28,7 @@ class Mock():
         """Returns a tuple containing the nodeID , time (x) , and RSSI (y)"""
 
         node_id = self.__class__.__name__
-        time = self.data["Time"][self.counter % self.count]
+        time = self.data["Time"][min(self.counter, self.count-1)]
         sensor = self.data["Diff"][self.counter % self.count]
         self.counter += 1
         if self.counter > self.count:
