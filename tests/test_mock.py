@@ -4,6 +4,7 @@ Tests for the mocking of data
 
 import pytest
 import sys
+sys.path.append("..")
 
 from src.mock import Mock
 mock_obj = Mock()
@@ -36,7 +37,7 @@ def test_point_validity() -> None:
 
     for i in range(0,10):
         x,y,node_id = mock_obj.get_latest()
-        assert (-80 < y < -60)
+        assert (0 < y < 40)
 
 def test_string_representation() -> None:
     """Test string representation"""
