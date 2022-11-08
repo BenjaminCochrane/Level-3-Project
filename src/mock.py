@@ -29,7 +29,7 @@ class Mock():
 
         node_id = self.__class__.__name__
         time = self.data["Time"][self.counter % self.count]
-        sensor = self.data["Sensor"][self.counter % self.count]
+        sensor = self.data["Diff"][self.counter % self.count]
         self.counter += 1
         return (time,sensor,node_id)
 
