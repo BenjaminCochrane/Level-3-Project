@@ -28,12 +28,13 @@ class AnimatedPlot():
         self.rssi_values.append(rssi_value)
 
         self.axis.clear()
-        self.axis.plot(self.times, self.rssi_values)
+        self.axis.plot(self.times, self.rssi_values, label=self.node_id)
 
         self.axis.axes.set_xlabel("Time in seconds")
         self.axis.axes.set_ylabel("RSSI Strength (ΔdBm)")
 
         self.axis.grid(axis = 'y')
+        self.axis.legend()
         #self.ax.fill_between(self.times, self.rssi_values, alpha=0.5)
 
         title=plt.title("Frequency changes detected by sensor")
