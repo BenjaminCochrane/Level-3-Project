@@ -3,7 +3,7 @@ Graph as a class
 """
 import matplotlib.pyplot as plt
 from matplotlib import animation
-import numpy as np
+#from serial_interface import SerialInterface
 from mock import Mock
 
 class AnimatedPlot():
@@ -11,24 +11,35 @@ class AnimatedPlot():
     def __init__ (self):
         """Constructor function for AnimPlot"""
 
-        self.times = []
-        self.rssi_values = []
+        self.node_dict = {}
+
+        #self.times = []
+        #self.rssi_values = []
+        #self.serial_interface = SerialInterface()
         self.mock = Mock()
 
         self.fig, self.axis = plt.subplots()
-        
+
         self.ani = animation.FuncAnimation(self.fig, self.update, interval=125)
 
-    def update(self, interval):
+    def update(self, _):
         """Updates the graph with new plots"""
 
-        time, rssi_value, self.node_id = self.mock.get_latest()
+        time, rssi_value, node_id = self.mock.get_latest()
 
-        self.times.append(time)
-        self.rssi_values.append(rssi_value)
+        try:
+            self.node_dict[node_id][0].append(time)
+            self.node_dict[node_id][1].append(rssi_value)
+        except KeyError:
+            self.node_dict[node_id] = [[time], [rssi_value]]
+
+        #self.times.append(time)
+        #self.rssi_values.append(rssi_value)
+
 
         self.axis.clear()
-        self.axis.plot(self.times, self.rssi_values, label=self.node_id)
+        for key, value in self.node_dict.items():
+            self.axis.plot(value[0], value[1], label=key)
 
         self.axis.axes.set_xlabel("Time in seconds")
         self.axis.axes.set_ylabel("RSSI Strength (ΔdBm)")
@@ -39,6 +50,9 @@ class AnimatedPlot():
 
         title=plt.title("Frequency changes detected by sensor")
         title.set_weight('bold')
+
+    def __str__(self):
+        return "graph"
 
 if __name__ == "__main__":
     anim_plot = AnimatedPlot()

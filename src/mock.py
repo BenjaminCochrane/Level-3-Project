@@ -9,7 +9,7 @@ import pandas as pd
 class Mock():
     """Class to mock data for graph"""
 
-    def __init__(self):
+    def __init__(self, name = 'Mock'):
         """Constructor function for Mock class,
         try/except block accounts for local testing and Docker testing"""
 
@@ -24,10 +24,12 @@ class Mock():
         self.count = self.data.count().min()
         self.data = self.data[0:self.data.count().min()]
 
+        self.name = name
+
     def get_latest(self) -> tuple:
         """Returns a tuple containing the nodeID , time (x) , and RSSI (y)"""
 
-        node_id = self.__class__.__name__
+        node_id = self.name + str(self.counter % 2)
         time = self.data["Time"][min(self.counter, self.count-1)]
         sensor = self.data["Diff"][self.counter % self.count]
         self.counter += 1
