@@ -26,10 +26,10 @@ class Mock():
 
         self.name = name
 
-    def get_latest(self) -> tuple:
+    def get_latest(self, count=1) -> tuple:
         """Returns a tuple containing the nodeID , time (x) , and RSSI (y)"""
 
-        node_id = self.name + str(self.counter % 2)
+        node_id = self.name + str(self.counter % count)
         time = self.data["Time"][min(self.counter, self.count-1)]
         sensor = self.data["Diff"][self.counter % self.count]
         self.counter += 1
