@@ -1,6 +1,7 @@
 """
 Graph as a class
 """
+from collections import defaultdict
 import matplotlib.pyplot as plt
 from matplotlib import animation
 #from serial_interface import SerialInterface
@@ -8,13 +9,13 @@ from mock import Mock
 
 class AnimatedPlot():
     """Animation function for graphing"""
-    def __init__ (self):
+    def __init__ (self, window = None):
         """Constructor function for AnimPlot"""
 
-        self.node_dict = {}
+        #self.node_dict = {}
+        self.node_dict = defaultdict(lambda: ([],[]))
+        self.window = window
 
-        #self.times = []
-        #self.rssi_values = []
         #self.serial_interface = SerialInterface()
         self.mock = Mock()
 
@@ -22,19 +23,20 @@ class AnimatedPlot():
 
         self.ani = animation.FuncAnimation(self.fig, self.update, interval=125)
 
-    def update(self, _):
+    def update(self, _, num_nodes=1):
         """Updates the graph with new plots"""
 
-        time, rssi_value, node_id = self.mock.get_latest()
+        time, rssi_value, node_id = self.mock.get_latest(num_nodes)
 
-        try:
-            self.node_dict[node_id][0].append(time)
-            self.node_dict[node_id][1].append(rssi_value)
-        except KeyError:
-            self.node_dict[node_id] = [[time], [rssi_value]]
+        self.node_dict[node_id][0].append(time)
+        self.node_dict[node_id][1].append(rssi_value)
 
-        #self.times.append(time)
-        #self.rssi_values.append(rssi_value)
+        #Running average
+        self.node_dict['running_average'][0].append(time)
+        count = min(self.window, len(self.node_dict[node_id][1]))
+        self.node_dict['running_average'][1].append(
+           sum(self.node_dict[node_id][1][len(self.node_dict[node_id][1]) - count:])/count
+        )
 
 
         self.axis.clear()
@@ -46,7 +48,6 @@ class AnimatedPlot():
 
         self.axis.grid(axis = 'y')
         self.axis.legend()
-        #self.ax.fill_between(self.times, self.rssi_values, alpha=0.5)
 
         title=plt.title("Frequency changes detected by sensor")
         title.set_weight('bold')
@@ -54,7 +55,11 @@ class AnimatedPlot():
     def __str__(self):
         return "graph"
 
+    def get_node_dict(self) -> dict:
+        """Returns node dict, used for testing"""
+        return self.node_dict
+
 if __name__ == "__main__":
-    anim_plot = AnimatedPlot()
+    anim_plot = AnimatedPlot(10)
     anim = anim_plot.ani
     plt.show()
