@@ -39,7 +39,7 @@ class AnimatedPlot():
 
         #Running average
         self.node_dict['running_average'][0].append(time)
-        if(self.window):
+        if self.window:
             count = min(self.window, len(self.node_dict[node_id][1]))
             self.node_dict['running_average'][1].append(
                 sum(self.node_dict[node_id][1][len(self.node_dict[node_id][1]) - count:])/count
