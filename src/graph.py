@@ -10,7 +10,11 @@ from mock import Mock
 class AnimatedPlot():
     """Animation function for graphing"""
     def __init__ (self, window = None):
-        """Constructor function for AnimPlot"""
+        """Constructor function for AnimPlot
+            window specifies how many values should be used
+            for the calculation of the running average
+            (Allows latest values to have greater impact)
+        """
 
         #self.node_dict = {}
         self.node_dict = defaultdict(lambda: ([],[]))
@@ -24,7 +28,9 @@ class AnimatedPlot():
         self.ani = animation.FuncAnimation(self.fig, self.update, interval=125)
 
     def update(self, _, num_nodes=1):
-        """Updates the graph with new plots"""
+        """Updates the graph with new plots
+            num_nodes should only be specified when using the mock
+        """
 
         time, rssi_value, node_id = self.mock.get_latest(num_nodes)
 
@@ -33,11 +39,15 @@ class AnimatedPlot():
 
         #Running average
         self.node_dict['running_average'][0].append(time)
-        count = min(self.window, len(self.node_dict[node_id][1]))
-        self.node_dict['running_average'][1].append(
-           sum(self.node_dict[node_id][1][len(self.node_dict[node_id][1]) - count:])/count
-        )
-
+        if(self.window):
+            count = min(self.window, len(self.node_dict[node_id][1]))
+            self.node_dict['running_average'][1].append(
+                sum(self.node_dict[node_id][1][len(self.node_dict[node_id][1]) - count:])/count
+            )
+        else:
+            self.node_dict['running_average'][1].append(
+                sum(self.node_dict[node_id][1])/len(self.node_dict[node_id][0])
+            )
 
         self.axis.clear()
         for key, value in self.node_dict.items():
@@ -60,6 +70,6 @@ class AnimatedPlot():
         return self.node_dict
 
 if __name__ == "__main__":
-    anim_plot = AnimatedPlot(10)
+    anim_plot = AnimatedPlot()
     anim = anim_plot.ani
     plt.show()
