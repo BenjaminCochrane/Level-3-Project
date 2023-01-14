@@ -4,7 +4,7 @@ Tests for the mocking of data
 
 import pytest
 import sys
-sys.path.append("..")
+#sys.path.append("..")
 
 from src.mock import Mock
 mock_obj = Mock()

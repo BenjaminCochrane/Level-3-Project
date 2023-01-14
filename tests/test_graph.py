@@ -3,12 +3,17 @@ Tests for the creation of a graph
 """
 
 import pytest
+import sys
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
 from matplotlib.testing.decorators import image_comparison
 from collections import defaultdict
+
+#sys.path.append("..")
+
 from src.graph import AnimatedPlot
+from src.mock import Mock
 
 anim_plot = AnimatedPlot(10)
 
@@ -41,11 +46,6 @@ def test_running_average():
     assert(type(node_dict) == defaultdict)
     assert(np.allclose(node_dict['running_average'][0][:10], [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5]))
     assert(np.allclose(node_dict['running_average'][1][:10], [14.0, 13.0, 13.333333333333334, 12.75, 12.6, 12.333333333333334, 12.0, 11.625, 11.333333333333334, 11.0]))
-
-    #assert(node_dict['running_average'][0][:11] == [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75])
-    #assert(node_dict['running_average'][1][:11] == [14.0, 13.0, 13.333333333333334, 12.75, 12.6, 12.333333333333334, 12.0, 11.625, 11.333333333333334, 11.0, 10.4])
-
-    
 
 if __name__ == "__main__":
     test_plot_type()
