@@ -10,8 +10,6 @@ import numpy as np
 from matplotlib.testing.decorators import image_comparison
 from collections import defaultdict
 
-#sys.path.append("..")
-
 from src.graph import AnimatedPlot
 from src.mock import Mock
 
@@ -42,10 +40,16 @@ def test_running_average():
     for _ in range (0,9):
         anim_plot.update(125)
     node_dict = anim_plot.get_node_dict()
-    print(node_dict['running_average'])
     assert(type(node_dict) == defaultdict)
     assert(np.allclose(node_dict['running_average'][0][:10], [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5]))
     assert(np.allclose(node_dict['running_average'][1][:10], [14.0, 13.0, 13.333333333333334, 12.75, 12.6, 12.333333333333334, 12.0, 11.625, 11.333333333333334, 11.0]))
+
+def test_standard_deviation():
+    """Test that standard deviation calculations are correct"""
+    node_dict = anim_plot.get_node_dict()
+    std_dev = np.std(node_dict['Mock0'])
+    assert(std_dev == anim_plot.get_std_dev('Mock0'))
+
 
 if __name__ == "__main__":
     test_plot_type()
