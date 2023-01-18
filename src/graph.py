@@ -4,6 +4,7 @@ Graph as a class
 from collections import defaultdict
 import matplotlib.pyplot as plt
 from matplotlib import animation
+import numpy as np
 #from serial_interface import SerialInterface
 from mock import Mock
 
@@ -69,7 +70,12 @@ class AnimatedPlot():
         """Returns node dict, used for testing"""
         return self.node_dict
 
+    def get_std_dev(self, node_id):
+        """Returns the standard deviation of the RSSI values of a given node"""
+        return np.std(self.node_dict[node_id])
+
 if __name__ == "__main__":
-    anim_plot = AnimatedPlot()
+    anim_plot = AnimatedPlot(10)
     anim = anim_plot.ani
     plt.show()
+    print(anim_plot.get_std_dev('Mock0'))
