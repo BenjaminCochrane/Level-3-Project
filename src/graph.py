@@ -4,6 +4,7 @@ Graph as a class
 from collections import defaultdict
 import matplotlib.pyplot as plt
 from matplotlib import animation
+import numpy as np
 #from serial_interface import SerialInterface
 from mock import Mock
 
@@ -15,7 +16,6 @@ class AnimatedPlot():
             for the calculation of the running average
             (Allows latest values to have greater impact)
         """
-
         #self.node_dict = {}
         self.node_dict = defaultdict(lambda: ([],[]))
         self.window = window
@@ -26,14 +26,18 @@ class AnimatedPlot():
         self.fig, self.axis = plt.subplots()
 
         self.ani = animation.FuncAnimation(self.fig, self.update, interval=125)
+        self.current_data = []
+         
+   
 
     def update(self, _, num_nodes=1):
         """Updates the graph with new plots
             num_nodes should only be specified when using the mock
         """
 
+        print("update method called")
         time, rssi_value, node_id = self.mock.get_latest(num_nodes)
-
+        self.current_data.append([time, rssi_value, node_id])
         self.node_dict[node_id][0].append(time)
         self.node_dict[node_id][1].append(rssi_value)
 
@@ -61,6 +65,12 @@ class AnimatedPlot():
 
         title=plt.title("Frequency changes detected by sensor")
         title.set_weight('bold')
+        #self.current_data.append((time, rssi_value, node_id))
+
+    def get_current_data(self):
+        print("get_current_data method called, current_data:", self.current_data)
+        return self.current_data
+        
 
     def __str__(self):
         return "graph"
@@ -69,7 +79,12 @@ class AnimatedPlot():
         """Returns node dict, used for testing"""
         return self.node_dict
 
+    def get_std_dev(self, node_id):
+        """Returns the standard deviation of the RSSI values of a given node"""
+        return np.std(self.node_dict[node_id])
+
 if __name__ == "__main__":
-    anim_plot = AnimatedPlot()
+    anim_plot = AnimatedPlot(10)
     anim = anim_plot.ani
     plt.show()
+    print(anim_plot.get_std_dev('Mock0'))

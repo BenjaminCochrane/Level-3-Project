@@ -5,6 +5,7 @@ start and stop recording the data and storing it in a csv file.
 """
 import tkinter as tk
 import pandas as pd
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib
 from graph import AnimatedPlot
@@ -12,42 +13,66 @@ from graph import AnimatedPlot
 matplotlib.use("TkAgg")
 
 class Main():
-    """TKinter window with embedded MatPlotLib graph"""
+#     def __init__(self, animated_plot):
+#         self.animated_plot = animated_plot
 
-    def __init__(self):
-        """
-        Initialize the Main class.
+#         self.root = Tk()
+#         self.root.title("RSSI Analyzer")
 
-        Creates the main window with a title 'GUI' and a fixed size of 500x500 pixels.
-        Initializes the animated plot, canvas, and dataframe.
-        """
+#         self.start_button = Button(self.root, text="Start Recording", command=self.start_recording)
+#         self.start_button.grid(row=0, column=0)
+
+#         self.stop_button = Button(self.root, text="Stop Recording", command=self.stop_recording)
+#         self.stop_button.grid(row=0, column=1)
+
+#     def start_recording(self):
+#         self.animated_plot.ani.event_source.start()
+
+#     def stop_recording(self):
+#         data = self.animated_plot.get_current_data()
+#         df = pd.DataFrame(data, columns=["Time", "RSSI Value", "Node ID"])
+#         df.to_csv("data.csv")
+
+# if __name__ == "__main__":
+#     animated_plot = AnimatedPlot(10)
+#     gui = Main(animated_plot)
+#     plt.show()
+
+ 
+
+    def __init__(self, animated_plot):
+        
+        self.animated_plot = animated_plot
         self.root = tk.Tk()
-        self.root.title('GUI')
-        self.root.geometry("500x500")
-        self.animated_plot = AnimatedPlot()
-        self.canvas = FigureCanvasTkAgg(self.animated_plot.fig, self.root)
+        self.root.title("RSSI Strength Plot")
+        
+        self.figure = self.animated_plot.fig
+        self.canvas = FigureCanvasTkAgg(self.figure, self.root)
         self.canvas.get_tk_widget().pack()
+        
+        self.start_button = tk.Button(self.root, text="Start Recording", command=self.start_recording)
+        self.start_button.pack()
+        
+        self.stop_button = tk.Button(self.root, text="Stop Recording", command=self.stop_recording)
+        self.stop_button.pack()
+        
+        self.root.mainloop()
 
-        self.start_stop_button = tk.Button(self.root,
-        command=self.start_stop_recording, text="Start/Stop Recording")
-
-        self.start_stop_button.pack()
-        self.recording = False
-        self.data = pd.DataFrame(columns=['time', 'rssi_value', 'node_id'])
-
-    def start_stop_recording(self):
-        """Button callback that records data"""
-        if not self.recording:
-            self.recording = True
-            self.start_stop_button.config(text='Stop Recording')
-        else:
-            self.recording = False
-            self.start_stop_button.config(text='Start Recording')
-            self.data.to_csv('recording.csv', index=False)
-
-    def __str__(self):
-        return "GUI"
-
+    def start_recording(self):
+        self.animated_plot.ani.event_source.start()
+    
+    def stop_recording(self):
+        # self.animated_plot.ani.event_source.stop()
+        data = self.animated_plot.get_current_data()
+        df = pd.DataFrame(data, columns=["Time", "RSSI Value", "Node ID"])
+        df.to_csv("data.csv")
+        
+ 
 if __name__ == "__main__":
-    my_gui = Main()
-    my_gui.root.mainloop()
+    animated_plot = AnimatedPlot(10)
+    gui = Main(animated_plot)
+    plt.show()
+
+ 
+
+ 
