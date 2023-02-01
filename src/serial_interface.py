@@ -19,23 +19,26 @@ class SerialInterface():
         initialised = False
 
         for port in serial.tools.list_ports.comports():
-            self.port = str(port.device)
-            self.serial_instance = serial.Serial(timeout = 0.25)
-            self.serial_instance.baudrate = 115200
-            self.serial_instance.port = self.port
-            self.serial_instance.open()
+            try:
+                self.port = str(port.device)
+                self.serial_instance = serial.Serial(timeout = 0.25)
+                self.serial_instance.baudrate = 115200
+                self.serial_instance.port = self.port
+                self.serial_instance.open()
 
-            #This checks for ports sending data - is this an issue?
-            #Reason: We get partial packets here: can't check format
-            if self.serial_instance.readline():
-                initialised = True
-                break
+                #This checks for ports sending data - is this an issue?
+                #Reason: We get partial packets here: can't check format
+                if self.serial_instance.readline():
+                    initialised = True
+                    break
+            except serial.SerialException:
+                continue
 
         #If we found a receiver reopen it without a timeout
         if self.serial_instance:
             self.serial_instance.close()
         if initialised:
-            self.serial_instance = serial.Serial()
+            self.serial_instance = serial.Serial(timeout=None)
             self.serial_instance.baudrate = 115200
             self.serial_instance.port = self.port
             self.serial_instance.open()
