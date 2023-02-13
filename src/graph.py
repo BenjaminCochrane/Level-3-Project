@@ -28,22 +28,23 @@ class AnimatedPlot():
 
         self.fig, self.axis = plt.subplots()
 
-        self.ani = animation.FuncAnimation(self.fig, self.update, interval=125)
+        self.ani = animation.FuncAnimation(self.fig, self.update, interval=250)
 
-    def update(self, _, num_nodes=1):
+    def update(self, _):
         """Updates the graph with new plots
             num_nodes is only used with the mock
         """
 
-        time, rssi_value, node_id = self.interface.get_latest(num_nodes)
+        data = self.interface.get_values()
 
-        #Check that the serial interface got all values
-        if(rssi_value and node_id):
 
-            self.node_dict[node_id][0].append(time)
-            self.node_dict[node_id][1].append(rssi_value)
+        if data:
+            for tup in data:
+                self.node_dict[tup[2]][0].append(tup[0])
+                self.node_dict[tup[2]][1].append(tup[1])
 
-            #Running average
+            time, _, node_id = data[0][0],data[0][1],data[0][2]
+
             self.node_dict['running_average'][0].append(time)
             if self.window:
                 count = min(self.window, len(self.node_dict[node_id][1]))
@@ -54,6 +55,7 @@ class AnimatedPlot():
                 self.node_dict['running_average'][1].append(
                     sum(self.node_dict[node_id][1])/len(self.node_dict[node_id][0])
                 )
+
 
         self.axis.clear()
         for key, value in self.node_dict.items():

@@ -26,7 +26,15 @@ class Mock():
 
         self.name = name
 
-    def get_latest(self, count=1) -> tuple:
+    def read_buffer(self):
+        '''Keep same interface for mock and serial_interface classes'''
+        return None
+
+    def get_values(self, count = 1):
+        '''Keep same interface for mock and serial_interface classes'''
+        return self.get_latest(count)
+
+    def get_latest(self, count=1) -> list:
         """Returns a tuple containing the nodeID , time (x) , and RSSI (y)"""
 
         node_id = self.name + str(self.counter % count)
@@ -35,7 +43,7 @@ class Mock():
         self.counter += 1
         if self.counter > self.count:
             time += (self.counter-self.count) * self.data["Time"][0]
-        return (float(time),float(sensor),node_id)
+        return [[ float(time),float(sensor),node_id ]]
 
     def __str__(self):
         """Return data as a string"""

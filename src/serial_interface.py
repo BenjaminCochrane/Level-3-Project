@@ -16,6 +16,8 @@ class SerialInterface():
         self.serial_instance = None
         self.port = None
 
+        self.buffer_obj = ""
+
         initialised = False
 
         for port in serial.tools.list_ports.comports():
@@ -45,6 +47,38 @@ class SerialInterface():
 
         if not initialised:
             print("No ports detected")
+
+
+    def read_buffer(self) -> list:
+        """Read full buffer from the serial port"""
+        buffer_size = self.serial_instance.inWaiting()
+        if buffer_size > 0:
+            print(repr(self.serial_instance.read(buffer_size).decode('utf-8')))
+            return [
+                item for item in
+                    self.serial_instance.read(buffer_size).decode('utf-8').split('\r\n')
+                if item != ""
+            ]
+        return None
+
+    def get_values(self) -> list:
+        '''Returns a list of all values in Serial Port buffer'''
+        if self.serial_instance:
+            buffer = self.read_buffer()
+
+            if buffer is not None:
+                current_time = time.time()
+
+                data = []
+                for item in buffer:
+                    try:
+                        node_id, _ , rssi_value = item.split('_')
+                        data.append([current_time - self.start_time, int(rssi_value), node_id])
+                    except ValueError:
+                        continue
+
+                return data
+        return None
 
 
     def get_latest(self, _ = None) -> tuple:
@@ -79,5 +113,7 @@ class SerialInterface():
 
 if __name__ == "__main__":
     serial_interface_obj = SerialInterface()
+    print(serial_interface_obj)
     while True:
-        print(serial_interface_obj.get_latest())
+        print(serial_interface_obj.get_values())
+        time.sleep(3)

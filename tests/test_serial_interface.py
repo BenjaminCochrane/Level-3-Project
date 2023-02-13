@@ -23,3 +23,16 @@ def test_get_latest() -> None:
 
     except AssertionError:
         assert (True)
+
+def test_get_values() -> None:
+    '''Test get_values and read_buffer'''
+    assert (serial_interface_obj.get_values() == None)
+
+def test_str():
+    '''Test string representation'''
+    assert (str(serial_interface_obj) == "serial_interface")
+
+#def test_delete():
+#    '''Test deletion'''
+#    del serial_interface_obj
+#    assert (True)
