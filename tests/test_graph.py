@@ -13,7 +13,7 @@ from collections import defaultdict
 from src.graph import AnimatedPlot
 from src.mock import Mock
 
-anim_plot = AnimatedPlot(10)
+anim_plot = AnimatedPlot(10, interface="mock")
 
 #@image_comparison(baseline_images=['test_plot'], remove_text=True,
 #                  extensions=['png'])
