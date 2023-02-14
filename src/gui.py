@@ -30,14 +30,13 @@ class Main():
         self.root.title("RSSI Strength Plot")
 
         self.start_graphing_button = tk.Button(self.root,
-                                            text="Start Graphing", 
+                                            text="Start Graphing",
                                             command=self.start_graphing)
         self.start_graphing_button.pack()
 
         self.stop_graphing_button = tk.Button(self.root, text="Stop Graphing",
                                               command=self.stop_graphing)
         self.stop_graphing_button.pack()
-        
         self.figure = self.animated_plot.fig
         self.canvas = FigureCanvasTkAgg(self.figure, self.root)
         self.canvas.get_tk_widget().pack()
@@ -45,7 +44,6 @@ class Main():
         self.start_recording_button = tk.Button(self.root, text="Start Recording",
                                                 command=self.start_recording)
         self.start_recording_button.pack()
-        
         self.stop_recording_button = tk.Button(self.root, text="Stop Recording",
                                                  command=self.stop_recording)
         self.stop_recording_button.pack()
@@ -74,7 +72,7 @@ class Main():
         Method to stop the animation, get the current data and
         store it in a Pandas DataFrame
         '''
-        data = self.animated_plot.get_current_data()
+        # data = self.animated_plot.get_current_data()
         # not for me :A Pandas DataFrame is a two-dimensional data structure that
         # can store data in tabular form (rows and columns). The rows can be
         # labeled and the columns can be named. It is similar to a spreadsheet
@@ -166,7 +164,8 @@ class Main():
                         return
                     # Finally, save the data to the selected file
                     data_frame.to_csv(file, index=False)
-                    messagebox.showinfo(title = None, message = "Data saved successfully to " + file)
+                    messagebox.showinfo(title = None,
+                    message = "Data saved successfully to " + file)
             switch(choice.get())
             saving_options_window.destroy()
         save_button = tk.Button(saving_options_window, text="Save", command=save_data)
