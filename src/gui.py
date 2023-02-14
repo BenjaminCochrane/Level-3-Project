@@ -24,6 +24,8 @@ class Main():
     Main class that creates the GUI window, buttons and provides functionality for 
     the buttons to start and stop recording the data and plotting the graph
     '''
+    # pylint: disable=too-many-instance-attributes
+    # Nine is reasonable in this case.
     def __init__(self, animated_plot):
         self.animated_plot = animated_plot
         self.root = tk.Tk()
@@ -171,6 +173,7 @@ class Main():
         save_button = tk.Button(saving_options_window, text="Save", command=save_data)
         save_button.pack()
 if __name__ == "__main__":
+    global animated_plot
     animated_plot = AnimatedPlot(10)
     gui = Main(animated_plot)
     plt.show()
