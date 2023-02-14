@@ -16,26 +16,30 @@ class AnimatedPlot():
             for the calculation of the running average
             (Allows latest values to have greater impact)
         """
-        #self.node_dict = {}
+     
         self.node_dict = defaultdict(lambda: ([],[]))
         self.window = window
-
-        #self.serial_interface = SerialInterface()
         self.mock = Mock()
-
         self.fig, self.axis = plt.subplots()
-
-        self.ani = animation.FuncAnimation(self.fig, self.update, interval=125)
+        self.ani_playing = None
+        
         self.current_data = []
          
-   
-
+    def start_animation(self):
+        self.ani_playing = animation.FuncAnimation(self.fig, self.update, interval=125)
+        self.ani_playing.event_source.start()
+        plt.show()
+    def stop_animation(self):
+        self.ani_playing.event_source.stop()
+    def get_ani_playing(self):
+        return self.ani_playing
+     
     def update(self, _, num_nodes=1):
         """Updates the graph with new plots
             num_nodes should only be specified when using the mock
         """
 
-        print("update method called")
+         
         time, rssi_value, node_id = self.mock.get_latest(num_nodes)
         self.current_data.append([time, rssi_value, node_id])
         self.node_dict[node_id][0].append(time)
