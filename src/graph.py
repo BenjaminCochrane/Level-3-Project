@@ -33,7 +33,6 @@ class AnimatedPlot():
     def get_ani_playing(self):
         '''Function to get the state of the animation'''
         return self.ani_playing
-     
     def update(self, _, num_nodes=1):
         """Updates the graph with new plots
             num_nodes should only be specified when using the mock
@@ -68,7 +67,7 @@ class AnimatedPlot():
     def get_current_data(self):
         '''Function that returns the current data'''
         print("get_current_data method called, current_data:", self.current_data)
-        return self.current_data 
+        return self.current_data
     def __str__(self):
         return "graph"
 

@@ -10,12 +10,12 @@ import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
 import datetime
+import os
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from graph import AnimatedPlot
-import os
 
 matplotlib.use("TkAgg")
 
@@ -29,12 +29,12 @@ class Main():
         self.root = tk.Tk()
         self.root.title("RSSI Strength Plot")
 
-        self.start_graphing_button = tk.Button(self.root, 
+        self.start_graphing_button = tk.Button(self.root,
                                             text="Start Graphing", 
                                             command=self.start_graphing)
         self.start_graphing_button.pack()
 
-        self.stop_graphing_button = tk.Button(self.root, text="Stop Graphing", 
+        self.stop_graphing_button = tk.Button(self.root, text="Stop Graphing",
                                               command=self.stop_graphing)
         self.stop_graphing_button.pack()
         
@@ -42,7 +42,7 @@ class Main():
         self.canvas = FigureCanvasTkAgg(self.figure, self.root)
         self.canvas.get_tk_widget().pack()
 
-        self.start_recording_button = tk.Button(self.root, text="Start Recording", 
+        self.start_recording_button = tk.Button(self.root, text="Start Recording",
                                                 command=self.start_recording)
         self.start_recording_button.pack()
         
@@ -62,7 +62,7 @@ class Main():
         Method to stop the animation, get the current data and store it
         '''
         if self.animated_plot.get_ani_playing():
-            self.animated_plot.stop_animation()   
+            self.animated_plot.stop_animation()
     def start_recording(self):
         '''
         Method to start the animation in the AnimatedPlot object
@@ -71,29 +71,29 @@ class Main():
         self.animated_plot.start_animation()
     def stop_recording(self):
         '''
-        Method to stop the animation, get the current data and 
+        Method to stop the animation, get the current data and
         store it in a Pandas DataFrame
         '''
         data = self.animated_plot.get_current_data()
-        # not for me :A Pandas DataFrame is a two-dimensional data structure that 
-        # can store data in tabular form (rows and columns). The rows can be 
-        # labeled and the columns can be named. It is similar to a spreadsheet 
-        # or a SQL table, and provides powerful and convenient data analysis 
-        # and manipulation methods.DataFrames can be created from different data 
-        # sources such as dictionaries, lists, arrays, and more, and can 
+        # not for me :A Pandas DataFrame is a two-dimensional data structure that
+        # can store data in tabular form (rows and columns). The rows can be
+        # labeled and the columns can be named. It is similar to a spreadsheet
+        # or a SQL table, and provides powerful and convenient data analysis
+        # and manipulation methods.DataFrames can be created from different data
+        # sources such as dictionaries, lists, arrays, and more, and can
         # be easily exported to various file formats (e.g., CSV, Excel, JSON, etc.).
-        data_frame = pd.DataFrame(data, columns=["Time", "RSSI Value", "Node ID"])
+        # data_frame = pd.DataFrame(data, columns=["Time", "RSSI Value", "Node ID"])
         self.saving_choices()
     def saving_choices(self):
         '''
-        Method that creates a new Tkinter window for the user to choose how to 
-        save the recorded data: 
-        saving the data in a new file, appending it to an existing file, 
+        Method that creates a new Tkinter window for the user to choose how to
+        save the recorded data:
+        saving the data in a new file, appending it to an existing file,
         or overwriting an existing file.
-        If the user chooses to save the data in a new file, 
-        it creates a new file with the format "data-YYYY-MM-DD HH:MM:SS.csv"; 
-        if the user chooses to append the data to an existing file, 
-        it opens a file dialog to select the file to append to; 
+        If the user chooses to save the data in a new file,
+        it creates a new file with the format "data-YYYY-MM-DD HH:MM:SS.csv";
+        if the user chooses to append the data to an existing file,
+        it opens a file dialog to select the file to append to;
         if the user chooses to overwrite an existing file,
         it opens a file dialog to select the file to overwrite.
         '''
@@ -101,39 +101,40 @@ class Main():
         saving_options_window.title("Save Data Options")
 
         choice = tk.StringVar(value="a")
-        a_button = tk.Radiobutton(saving_options_window, 
+        a_button = tk.Radiobutton(saving_options_window,
                     text="Save data in a new file", variable=choice, value="a")
-        b_button = tk.Radiobutton(saving_options_window, 
+        b_button = tk.Radiobutton(saving_options_window,
                     text="Append data to an existing file", variable=choice, value="b")
 
-        c_button = tk.Radiobutton(saving_options_window, 
+        c_button = tk.Radiobutton(saving_options_window,
                     text="Overwrite existing file", variable=choice, value="c")
 
         a_button.pack()
         b_button.pack()
         c_button.pack()
-        # from docs: class pandas.DataFrame(data=None, index=None, 
+        # from docs: class pandas.DataFrame(data=None, index=None,
         # columns=None, dtype=None, copy=None)
         data_dict={"Time": [], "RSSI Value": [], "Node ID": []}
         data_frame = pd.DataFrame(data=data_dict, dtype=None)
         def save_data():
             def switch(lang):
                 if lang == "a":
-                    file_name = "data-" + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + ".csv"
+                    file_name = "data-" + str(
+                        datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + ".csv"
                     data_frame.to_csv(file_name)
-                    # note for me: messagebox module displays message boxes 
-                    # with various types of buttons (e.g. OK, Cancel, Yes, No, etc.). 
-                    # Can be used to display error messages, 
+                    # note for me: messagebox module displays message boxes
+                    # with various types of buttons (e.g. OK, Cancel, Yes, No, etc.).
+                    # Can be used to display error messages,
                     # warnings, and other types of information to the user.
-                    messagebox.showinfo(title=None, 
+                    messagebox.showinfo(title=None,
                     message=  "Data saved successfully to " + file_name)
                 elif lang == "b":
                     file_list = []
                     for file in os.listdir():
                         if file.endswith(".csv"):
                             file_list.append(file)
-                    # note for me: tkinter.filedialog module provides functions 
-                    # for opening and saving files. It presents the user with a file 
+                    # note for me: tkinter.filedialog module provides functions
+                    # for opening and saving files. It presents the user with a file
                     # selection dialog to choose a file or directory on their system
                     selected_file = tk.filedialog.askopenfilename(initialdir = ".",
                     title = "Select file",filetypes = (("CSV files","*.csv"),))
@@ -142,7 +143,8 @@ class Main():
                         messagebox.showinfo(title="Success",
                         message="Data saved successfully to " + selected_file)
                     else:
-                        messagebox.showerror(title="FAILURE", message="Data not saved, pleease check if you have selected a file.")
+                        messagebox.showerror(title="FAILURE",
+                        message="Data not saved, pleease check if you have selected a file.")
                 elif lang == "c":
                     # check the list of files in the directory yhat end with .csv
                     files = [f for f in os.listdir() if f.endswith(".csv")]
@@ -157,7 +159,9 @@ class Main():
                     # filetypes - a sequence of (label, pattern) tuples, ‘*’ wildcard is allowed
                     # defaultextension - default extension to append to file (save dialogs)
                     # multiple - when true, selection of multiple items is allowed
-                    file = filedialog.askopenfilename(title="Select which .csv file you would like to overwrite", filetypes=(("CSV files", "*.csv"),), initialdir=".") 
+                    file = filedialog.askopenfilename(title=
+                    "Select which .csv file you would like to overwrite",
+                    filetypes=(("CSV files", "*.csv"),), initialdir=".")
                     if not file:
                         return
                     # Finally, save the data to the selected file
