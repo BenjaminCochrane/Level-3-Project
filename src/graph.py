@@ -16,35 +16,32 @@ class AnimatedPlot():
             for the calculation of the running average
             (Allows latest values to have greater impact)
         """
-     
         self.node_dict = defaultdict(lambda: ([],[]))
         self.window = window
         self.mock = Mock()
         self.fig, self.axis = plt.subplots()
         self.ani_playing = None
-        
         self.current_data = []
-         
     def start_animation(self):
+        '''Function to start animation'''
         self.ani_playing = animation.FuncAnimation(self.fig, self.update, interval=125)
         self.ani_playing.event_source.start()
         plt.show()
     def stop_animation(self):
+        '''Function to stop animation'''
         self.ani_playing.event_source.stop()
     def get_ani_playing(self):
+        '''Function to get the state of the animation'''
         return self.ani_playing
      
     def update(self, _, num_nodes=1):
         """Updates the graph with new plots
             num_nodes should only be specified when using the mock
         """
-
-         
         time, rssi_value, node_id = self.mock.get_latest(num_nodes)
         self.current_data.append([time, rssi_value, node_id])
         self.node_dict[node_id][0].append(time)
         self.node_dict[node_id][1].append(rssi_value)
-
         #Running average
         self.node_dict['running_average'][0].append(time)
         if self.window:
@@ -56,7 +53,6 @@ class AnimatedPlot():
             self.node_dict['running_average'][1].append(
                 sum(self.node_dict[node_id][1])/len(self.node_dict[node_id][0])
             )
-
         self.axis.clear()
         for key, value in self.node_dict.items():
             self.axis.plot(value[0], value[1], label=key)
@@ -66,16 +62,13 @@ class AnimatedPlot():
 
         self.axis.grid(axis = 'y')
         self.axis.legend()
-
         title=plt.title("Frequency changes detected by sensor")
         title.set_weight('bold')
         #self.current_data.append((time, rssi_value, node_id))
-
     def get_current_data(self):
+        '''Function that returns the current data'''
         print("get_current_data method called, current_data:", self.current_data)
-        return self.current_data
-        
-
+        return self.current_data 
     def __str__(self):
         return "graph"
 
