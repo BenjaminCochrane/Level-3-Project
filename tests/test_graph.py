@@ -50,6 +50,20 @@ def test_standard_deviation():
     std_dev = np.std(node_dict['Mock0'])
     assert(std_dev == anim_plot.get_std_dev('Mock0'))
 
+def test_calculate_gradient():
+    """Test the gradient is calculated correctly"""
+    assert(1 == anim_plot.calculate_gradient([1,1],[2,2]))
+
+def test_calculate_node_at_all_times():
+    """Test that we get the required length"""
+    assert(2 == len(anim_plot.calculate_node_at_all_times([[1],[1]],[1])))
+
+def test_calculate_node_diff():
+    """Test the node diff"""
+    node_dict = anim_plot.get_node_dict()
+    keys = [k for k in node_dict.keys()]
+    anim_plot.calculate_node_diff(keys[0], keys[1])
+    assert(True)
 
 if __name__ == "__main__":
-    test_plot_type()
+    test_calculate_node_diff()
