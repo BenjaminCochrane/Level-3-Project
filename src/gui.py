@@ -173,7 +173,6 @@ class Main():
         save_button = tk.Button(saving_options_window, text="Save", command=save_data)
         save_button.pack()
 if __name__ == "__main__":
-    global animated_plot
-    animated_plot = AnimatedPlot(10)
-    gui = Main(animated_plot)
+    animated_plot_two = AnimatedPlot(10)
+    gui = Main(animated_plot_two)
     plt.show()
