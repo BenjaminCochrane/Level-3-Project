@@ -16,6 +16,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from graph import AnimatedPlot
+import csv
 
 matplotlib.use("TkAgg")
 
@@ -27,6 +28,8 @@ class Main():
     # pylint: disable=too-many-instance-attributes
     # Nine is reasonable in this case.
     def __init__(self, animated_plot):
+        self.start_data_index=0
+        self.end_data_index=0
         self.animated_plot = animated_plot
         self.root = tk.Tk()
         self.root.title("RSSI Strength Plot")
@@ -67,14 +70,19 @@ class Main():
         '''
         Method to start the animation in the AnimatedPlot object
         '''
+        start_data_set = self.animated_plot.get_current_data()
+        self.start_data_index=len(self.animated_plot.get_current_data())
+        print("starting index", self.start_data_index-1)
         #start animation if not started to have something to record
         self.animated_plot.start_animation()
+
     def stop_recording(self):
         '''
         Method to stop the animation, get the current data and
         store it in a Pandas DataFrame
         '''
-        # data = self.animated_plot.get_current_data()
+        data = self.animated_plot.get_current_data()
+        self.end_data_index=(len(data))
         # not for me :A Pandas DataFrame is a two-dimensional data structure that
         # can store data in tabular form (rows and columns). The rows can be
         # labeled and the columns can be named. It is similar to a spreadsheet
@@ -82,7 +90,8 @@ class Main():
         # and manipulation methods.DataFrames can be created from different data
         # sources such as dictionaries, lists, arrays, and more, and can
         # be easily exported to various file formats (e.g., CSV, Excel, JSON, etc.).
-        # data_frame = pd.DataFrame(data, columns=["Time", "RSSI Value", "Node ID"])
+        self.data_frame = pd.DataFrame(data[self.start_data_index:self.end_data_index], columns=[  "Time", "RSSI Value", "Node ID"])
+        print("data frame before caling the saving choices", self.data_frame)
         self.saving_choices()
     def saving_choices(self):
         '''
@@ -114,20 +123,40 @@ class Main():
         c_button.pack()
         # from docs: class pandas.DataFrame(data=None, index=None,
         # columns=None, dtype=None, copy=None)
-        data_dict={"Time": [], "RSSI Value": [], "Node ID": []}
-        data_frame = pd.DataFrame(data=data_dict, dtype=None)
+        # data_dict={"Time": [], "RSSI Value": [], "Node ID": []}
+        # data_frame = pd.DataFrame(data=data_dict, dtype=None)
+        # print()
         def save_data():
             def switch(lang):
                 if lang == "a":
                     file_name = "data-" + str(
                         datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + ".csv"
-                    data_frame.to_csv(file_name)
+                     
+                    data=self.data_frame.to_csv(file_name)
+                    # with open(file_name, 'w', newline='') as file:
+                    #     print(data)
+                    #     print(type(data))
+                    #     print(len(data))
+                    #     writer = csv.writer(file)
+                    #     writer.writerows(data)
+                    #     #writer.clos
+
+                        # file.write(data) #instead of file
+                        # file.close()
+
+
+                    # data_frame = pd.DataFrame(data_dict)
+                    # data_frame.to_csv(file_name, index=False)
                     # note for me: messagebox module displays message boxes
                     # with various types of buttons (e.g. OK, Cancel, Yes, No, etc.).
                     # Can be used to display error messages,
                     # warnings, and other types of information to the user.
                     messagebox.showinfo(title=None,
                     message=  "Data saved successfully to " + file_name)
+                     
+                    # file.write(data) #instead of file
+                    # file.close()
+
                 elif lang == "b":
                     file_list = []
                     for file in os.listdir():
@@ -139,7 +168,7 @@ class Main():
                     selected_file = tk.filedialog.askopenfilename(initialdir = ".",
                     title = "Select file",filetypes = (("CSV files","*.csv"),))
                     if selected_file:
-                        data_frame.to_csv(selected_file, mode='a', header=False)
+                        self.data_frame.to_csv(selected_file, mode='a', header=False)
                         messagebox.showinfo(title="Success",
                         message="Data saved successfully to " + selected_file)
                     else:
@@ -165,7 +194,7 @@ class Main():
                     if not file:
                         return
                     # Finally, save the data to the selected file
-                    data_frame.to_csv(file, index=False)
+                    self.data_frame.to_csv(file, index=False)
                     messagebox.showinfo(title = None,
                     message = "Data saved successfully to " + file)
             switch(choice.get())
