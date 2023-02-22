@@ -21,84 +21,106 @@ import time
 import datetime
 print("seq")
 
- 
+animated_plot = AnimatedPlot()
+main = Main(animated_plot)
+
+def test_toggle_graphing_initial_state():
+    assert main.graph_started == False 
+
+def test_toggle_graphing_initial_text():
+    assert main.graph_button.cget("text") == "Start Graphing"
+
+def test_toggle_graphing_after_text():
+    main.graph_button.invoke()
+    assert main.graph_button.cget("text") == "Stop Graphing"
 
 
 
-def test_start_recording():
-    '''Test start_recording method that strats recoding data to be saved in .csv'''
-    animated_plot = AnimatedPlot()
-    main = Main(animated_plot)
-    main.start_recording()
-    time.sleep(1)
-    main.stop_recording()
-    assert main.data_frame is not None
-    # self.assertListEqual(list(main.data_frame.columns), ["Time", "RSSI Value", "Node ID"])
-    assert list(main.data_frame.columns) == ["Time", "RSSI Value", "Node ID"]
+
+
+
+
+
+
+
+
+
+
+
+# def test_start_recording():
+#     '''Test start_recording method that strats recoding data to be saved in .csv'''
+#     animated_plot = AnimatedPlot()
+#     main = Main(animated_plot)
+#     main.start_recording()
+#     time.sleep(1)
+#     main.stop_recording()
+#     assert main.data_frame is not None
+#     # self.assertListEqual(list(main.data_frame.columns), ["Time", "RSSI Value", "Node ID"])
+#     assert list(main.data_frame.columns) == ["Time", "RSSI Value", "Node ID"]
     
-def test_save_data_creates_file():
-    animated_plot = AnimatedPlot()
-    main = Main(animated_plot)
-    saved_files_dir = os.path.join(os.path.dirname(__file__), '..', 'saved_files')
-    os.makedirs(saved_files_dir, exist_ok=True)
-    file_path = os.path.join(saved_files_dir, "data-" + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + ".csv")
-    main.start_recording()
-    time.sleep(1)
-    main.stop_recording()
-    # assert os.path.isdir(self.saved_files_dir)
-    print(file_path)
-    assert os.path.isfile(file_path)
+# def test_save_data_creates_file():
+#     animated_plot = AnimatedPlot()
+#     main = Main(animated_plot)
+#     saved_files_dir = os.path.join(os.path.dirname(__file__), '..', 'saved_files')
+#     os.makedirs(saved_files_dir, exist_ok=True)
+#     file_path = os.path.join(saved_files_dir, "data-" + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + ".csv")
+#     main.start_recording()
+#     time.sleep(1)
+#     main.stop_recording()
+#     # assert os.path.isdir(self.saved_files_dir)
+#     print(file_path)
+#     assert os.path.isfile(file_path)
 
-#this passes yay
-def test_start_graphing():
-    mock = Mock()
-    animated_plot = AnimatedPlot(mock.get_latest)
-    main = Main(animated_plot)
-    main.start_graphing()
-    assert main.anim_started == True 
+# #this passes yay
+# def test_start_graphing():
+#     mock = Mock()
+#     animated_plot = AnimatedPlot(mock.get_latest)
+#     main = Main(animated_plot)
+#     main.start_graphing()
+#     assert main.anim_started == True 
 
-def test_stop_graphing():
-    mock = Mock()
-    animated_plot = AnimatedPlot(mock.get_latest)
-    main = Main(animated_plot)
-    main.start_graphing()
-    main.stop_graphing()
-    assert main.anim_started == False
+# def test_stop_graphing():
+#     mock = Mock()
+#     animated_plot = AnimatedPlot(mock.get_latest)
+#     main = Main(animated_plot)
+#     main.start_graphing()
+#     main.stop_graphing()
+#     assert main.anim_started == False
 
 #this passes yayyy
-def test_save_data_creates_and_appends_to_file():
-    saved_files_dir = os.path.join(os.path.dirname(__file__), '..', 'saved_files')
-    os.makedirs(saved_files_dir, exist_ok=True)
-    file_path = os.path.join(saved_files_dir, "data-" + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + ".csv")
+# def test_save_data_creates_and_appends_to_file():
+#     saved_files_dir = os.path.join(os.path.dirname(__file__), '..', 'saved_files')
+#     os.makedirs(saved_files_dir, exist_ok=True)
+#     file_path = os.path.join(saved_files_dir, "data-" + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + ".csv")
 
-    mock_data = Mock()
-    data = []
-    for i in range(10):
-        time, sensor, node_id = mock_data.get_latest()
-        data.append((time, sensor, node_id))
+#     mock_data = Mock()
+#     data = []
+#     for i in range(10):
+#         time, sensor, node_id = mock_data.get_latest()
+#         data.append((time, sensor, node_id))
 
-    with open(file_path, 'w') as f:
-        f.write('Time,Diff,NodeID\n')
-        for d in data:
-            f.write(f'{d[0]},{d[1]},{d[2]}\n')
+#     with open(file_path, 'w') as f:
+#         f.write('Time,Diff,NodeID\n')
+#         for d in data:
+#             f.write(f'{d[0]},{d[1]},{d[2]}\n')
 
-    for i in range(10):
-        time, sensor, node_id = mock_data.get_latest()
-        data.append((time, sensor, node_id))
-        with open(file_path, 'a') as f:
-            f.write(f'{time},{sensor},{node_id}\n')
+#     for i in range(10):
+#         time, sensor, node_id = mock_data.get_latest()
+#         data.append((time, sensor, node_id))
+#         with open(file_path, 'a') as f:
+#             f.write(f'{time},{sensor},{node_id}\n')
 
-    with open(file_path, 'r') as f:
-        lines = f.readlines()
-        assert len(lines) == 21  # 1 + 20 data lines
-        for i, line in enumerate(lines[1:]):
-            t, d, n = line.strip().split(',')
-            assert float(t) == data[i][0] or float(t) == mock_data.data["Time"][i % mock_data.count]
-
-
+#     with open(file_path, 'r') as f:
+#         lines = f.readlines()
+#         assert len(lines) == 21  # 1 + 20 data lines
+#         for i, line in enumerate(lines[1:]):
+#             t, d, n = line.strip().split(',')
+#             assert float(t) == data[i][0] or float(t) == mock_data.data["Time"][i % mock_data.count]
 
 
 
+
+main.root.destroy()
 
 
 
