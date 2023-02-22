@@ -16,7 +16,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from graph import AnimatedPlot
-import csv
+import threading
 
 matplotlib.use("TkAgg")
 
@@ -28,20 +28,28 @@ class Main():
     # pylint: disable=too-many-instance-attributes
     # Nine is reasonable in this case.
     def __init__(self, animated_plot):
+        # self.anim_started=False
+        
+        self.saved_files_dir =""
+        self.filename=""
         self.start_data_index=0
         self.end_data_index=0
         self.animated_plot = animated_plot
         self.root = tk.Tk()
         self.root.title("RSSI Strength Plot")
+        self.graph_button = tk.Button(self.root, text="Start Graphing",
+                                      command=self.toggle_graphing) #new
+        self.graph_button.pack()     
+         
+        # remove old buttons below as now we have only one button that chnages text         
+        # self.start_graphing_button = tk.Button(self.root,
+        #                                     text="Start Graphing",
+        #                                     command=self.start_graphing)
+        # self.start_graphing_button.pack()
 
-        self.start_graphing_button = tk.Button(self.root,
-                                            text="Start Graphing",
-                                            command=self.start_graphing)
-        self.start_graphing_button.pack()
-
-        self.stop_graphing_button = tk.Button(self.root, text="Stop Graphing",
-                                              command=self.stop_graphing)
-        self.stop_graphing_button.pack()
+        # self.stop_graphing_button = tk.Button(self.root, text="Stop Graphing",
+        #                                       command=self.stop_graphing)
+        # self.stop_graphing_button.pack()
         self.figure = self.animated_plot.fig
         self.canvas = FigureCanvasTkAgg(self.figure, self.root)
         self.canvas.get_tk_widget().pack()
@@ -54,18 +62,47 @@ class Main():
         self.stop_recording_button.pack()
         self.next_page_button = tk.Button(self.root, text="Time Slicing page")
         self.next_page_button.pack(side="right")
-        self.root.mainloop()
+        self.anim_started=False
+        self.graph_started=False   
+        # self.root.mainloop()
+
+    def toggle_graphing(self):
+        '''
+        Method to start or stop the animation/graphing depending on the current state
+        '''
+        if self.graph_started:
+            self.stop_graphing()
+            self.graph_button.config(text="Start Graphing")
+            self.graph_started=False
+        else:
+            
+            self.graph_button.config(text="Stop Graphing")
+            self.graph_started=True
+            self.start_graphing()
+            
     def start_graphing(self):
         '''
         Method to starts the animation/graphing
         '''
+        self.anim_started=self.animated_plot.get_ani_playing()
         self.animated_plot.start_animation()
+        self.anim_started = True
+         
+        # self.anim_started=self.animated_plot.get_ani_playing()
+        # self.anim_thread = threading.Thread(target=self.animated_plot.start_animation)
+        # self.anim_thread.start()
+        # self.anim_started = True
+
     def stop_graphing(self):
         '''
         Method to stop the animation, get the current data and store it
         '''
-        if self.animated_plot.get_ani_playing():
+        
+        self.anim_started=self.animated_plot.get_ani_playing()
+        if self.anim_started:
             self.animated_plot.stop_animation()
+            self.anim_started = False
+
     def start_recording(self):
         '''
         Method to start the animation in the AnimatedPlot object
@@ -73,16 +110,19 @@ class Main():
         start_data_set = self.animated_plot.get_current_data()
         self.start_data_index=len(self.animated_plot.get_current_data())
         print("starting index", self.start_data_index-1)
-        #start animation if not started to have something to record
         self.animated_plot.start_animation()
+        self.anim_started = True 
+        self.graph_button.config(text="Stop Graphing")
+        self.graph_started=True
 
     def stop_recording(self):
         '''
         Method to stop the animation, get the current data and
         store it in a Pandas DataFrame
         '''
+        self.anim_started = False
         data = self.animated_plot.get_current_data()
-        self.end_data_index=(len(data))
+        self.end_data_index=len(data)-1
         # not for me :A Pandas DataFrame is a two-dimensional data structure that
         # can store data in tabular form (rows and columns). The rows can be
         # labeled and the columns can be named. It is similar to a spreadsheet
@@ -90,7 +130,8 @@ class Main():
         # and manipulation methods.DataFrames can be created from different data
         # sources such as dictionaries, lists, arrays, and more, and can
         # be easily exported to various file formats (e.g., CSV, Excel, JSON, etc.).
-        self.data_frame = pd.DataFrame(data[self.start_data_index:self.end_data_index], columns=[  "Time", "RSSI Value", "Node ID"])
+        self.data_frame = pd.DataFrame(data[self.start_data_index:self.end_data_index], 
+        columns=["Time", "RSSI Value", "Node ID"])
         print("data frame before caling the saving choices", self.data_frame)
         self.saving_choices()
     def saving_choices(self):
@@ -129,34 +170,11 @@ class Main():
         def save_data():
             def switch(lang):
                 if lang == "a":
-                    file_name = "data-" + str(
-                        datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + ".csv"
-                     
-                    data=self.data_frame.to_csv(file_name)
-                    # with open(file_name, 'w', newline='') as file:
-                    #     print(data)
-                    #     print(type(data))
-                    #     print(len(data))
-                    #     writer = csv.writer(file)
-                    #     writer.writerows(data)
-                    #     #writer.clos
-
-                        # file.write(data) #instead of file
-                        # file.close()
-
-
-                    # data_frame = pd.DataFrame(data_dict)
-                    # data_frame.to_csv(file_name, index=False)
-                    # note for me: messagebox module displays message boxes
-                    # with various types of buttons (e.g. OK, Cancel, Yes, No, etc.).
-                    # Can be used to display error messages,
-                    # warnings, and other types of information to the user.
-                    messagebox.showinfo(title=None,
-                    message=  "Data saved successfully to " + file_name)
-                     
-                    # file.write(data) #instead of file
-                    # file.close()
-
+                    self.saved_files_dir = os.path.join(os.path.dirname(__file__), '..', 'saved_files')
+                    os.makedirs(self.saved_files_dir, exist_ok=True)
+                    file_path = os.path.join(self.saved_files_dir, "data-" + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + ".csv")
+                    self.data_frame.to_csv(file_path, index=False)
+                    messagebox.showinfo(title=None, message=f"Data saved successfully to {file_path}")
                 elif lang == "b":
                     file_list = []
                     for file in os.listdir():
@@ -168,40 +186,44 @@ class Main():
                     selected_file = tk.filedialog.askopenfilename(initialdir = ".",
                     title = "Select file",filetypes = (("CSV files","*.csv"),))
                     if selected_file:
-                        self.data_frame.to_csv(selected_file, mode='a', header=False)
+                        self.data_frame.to_csv(selected_file, mode='a', header=False, index=False)
                         messagebox.showinfo(title="Success",
                         message="Data saved successfully to " + selected_file)
                     else:
                         messagebox.showerror(title="FAILURE",
                         message="Data not saved, pleease check if you have selected a file.")
                 elif lang == "c":
-                    # check the list of files in the directory yhat end with .csv
-                    files = [f for f in os.listdir() if f.endswith(".csv")]
+                    script_dir = os.path.dirname(os.path.abspath(__file__))
+                    directory_path = os.path.join(script_dir, os.pardir, 'saved_files')
+                    if not os.path.exists(directory_path):
+                        os.makedirs(directory_path)
+                    files = [f for f in os.listdir(directory_path) if f.endswith(".csv")]
                     if not files:
                         messagebox.showerror("Error! No existing files found")
                         return
-                    # Present this list of files to the user in a dialog
-                    # parent - the window to place the dialog on top of
-                    # title - the title of the window
-                    # initialdir - the directory that the dialog starts in
-                    # initialfile - the file selected upon opening of the dialog
-                    # filetypes - a sequence of (label, pattern) tuples, ‘*’ wildcard is allowed
-                    # defaultextension - default extension to append to file (save dialogs)
-                    # multiple - when true, selection of multiple items is allowed
-                    file = filedialog.askopenfilename(title=
-                    "Select which .csv file you would like to overwrite",
-                    filetypes=(("CSV files", "*.csv"),), initialdir=".")
+                    file = filedialog.askopenfilename(initialdir=directory_path, 
+                        title="Select file to overwrite", filetypes=(("CSV files", "*.csv"),))
                     if not file:
                         return
-                    # Finally, save the data to the selected file
+                    # confirmation to overwrite it
+                    if os.path.exists(file):
+                        confirmed = messagebox.askyesno(title="Confirm overwrite", message="The file already exists. Do you want to overwrite it?")
+                        if not confirmed:
+                            return
                     self.data_frame.to_csv(file, index=False)
-                    messagebox.showinfo(title = None,
-                    message = "Data saved successfully to " + file)
+                    messagebox.showinfo(title=None, message="Data saved successfully to " + file)
             switch(choice.get())
             saving_options_window.destroy()
+            # return(self.file_name)
         save_button = tk.Button(saving_options_window, text="Save", command=save_data)
         save_button.pack()
 if __name__ == "__main__":
     animated_plot_two = AnimatedPlot(10)
     gui = Main(animated_plot_two)
     plt.show()
+
+# if __name__ == "__main__":
+#     root = tk.Tk()
+#     anim_plot = AnimatedPlot(10)
+#     app = Main(anim_plot, root)
+#     root.mainloop()

@@ -32,6 +32,8 @@ class AnimatedPlot():
         self.ani_playing.event_source.stop()
     def get_ani_playing(self):
         '''Function to get the state of the animation'''
+        if self.ani_playing:
+            self.ani_playing.event_source.stop()
         return self.ani_playing
     def update(self, _, num_nodes=1):
         """Updates the graph with new plots
@@ -81,6 +83,6 @@ class AnimatedPlot():
 
 if __name__ == "__main__":
     anim_plot = AnimatedPlot(10)
-    anim = anim_plot.ani
+    anim = anim_plot.ani_playing
     plt.show()
     print(anim_plot.get_std_dev('Mock0'))
