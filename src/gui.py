@@ -17,9 +17,12 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from graph import AnimatedPlot
 
+
+headless = None
 try:
     matplotlib.use("TkAgg")
 except ImportError:
+    headless = True
     print("Running in headless mode...")
 
 class Main():
@@ -39,8 +42,10 @@ class Main():
         self.start_data_index=0
         self.end_data_index=0
         self.animated_plot = animated_plot
-        self.root = tk.Tk()
-        self.root.title("RSSI Strength Plot")
+
+        if not headless:
+            self.root = tk.Tk()
+            self.root.title("RSSI Strength Plot")
 
         self.buttons = {
             'graph_button'   :tk.Button(self.root, text="Start Graphing",
