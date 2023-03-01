@@ -28,11 +28,11 @@ def test_toggle_graphing_initial_state():
     assert main.graph_started == False 
 
 def test_toggle_graphing_initial_text():
-    assert main.graph_button.cget("text") == "Start Graphing"
+    assert main.buttons.get("graph_button").cget("text") == "Start Graphing"
 
 def test_toggle_graphing_after_text():
-    main.graph_button.invoke()
-    assert main.graph_button.cget("text") == "Stop Graphing"
+    main.buttons.get("graph_button").invoke()
+    assert main.get("graph_button").cget("text") == "Stop Graphing"
 
 
 
@@ -205,4 +205,4 @@ main.root.destroy()
 # check that the start and end indices are in the dataframe
 # file is created 
 # create a file (create an actual .csv inside the ) / get its size / make sure that the new file is larger
-# check that all the data is appended and not just the length of the file 
+# check that all the data is appended and not just the length of the file
