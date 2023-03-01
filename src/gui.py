@@ -70,7 +70,9 @@ class Main():
 
         #States
         self.anim_started=False
-        self.graph_started=False   
+        self.graph_started=False
+
+        self.root.mainloop()
 
     def toggle_graphing(self):
         '''
@@ -213,7 +215,7 @@ class Main():
 if __name__ == "__main__":
     animated_plot= AnimatedPlot(10)
     gui = Main(animated_plot)
-    plt.show()
+    #plt.show()
 
 # if __name__ == "__main__":
 #     root = tk.Tk()
