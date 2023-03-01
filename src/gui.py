@@ -49,7 +49,7 @@ class Main():
 
         self.buttons = {
             'graph_button'   :tk.Button(self.root, text="Start Graphing",
-                                        command=self.toggle_graphing),
+                                        command=self.start_graphing),
             'start_recording':tk.Button(self.root, text="Start Recording",
                                         command=self.start_recording),
             'stop_recording' :tk.Button(self.root, text="Stop Recording",
