@@ -48,8 +48,8 @@ class Main():
             self.root.title("RSSI Strength Plot")
 
         self.buttons = {
-            'graph_button'   :tk.Button(self.root, text="Start Graphing",
-                                        command=self.start_graphing),
+            'graph_button'   :tk.Button(self.root, text="Toggle Graphing",
+                                        command=self.toggle_graphing),
             'start_recording':tk.Button(self.root, text="Start Recording",
                                         command=self.start_recording),
             'stop_recording' :tk.Button(self.root, text="Stop Recording",
@@ -78,32 +78,36 @@ class Main():
         '''
         Method to start or stop the animation/graphing depending on the current state
         '''
-        if self.graph_started:
-            self.stop_graphing()
-            self.buttons['graph_button'].config(text="Start Graphing")
-            self.graph_started=False
-        else:
-            self.buttons['graph_button'].config(text="Stop Graphing")
-            self.graph_started=True
-            self.start_graphing()
+        self.animated_plot.toggle_pause()
+        #if self.graph_started:
+        #    self.stop_graphing()
+        #    self.buttons['graph_button'].config(text="Start Graphing")
+        #    self.graph_started=False
+        #else:
+        #    self.buttons['graph_button'].config(text="Stop Graphing")
+        #    self.graph_started=True
+        #    self.start_graphing()
+
+
             
     def start_graphing(self):
         '''
         Method to starts the animation/graphing
         '''
-        self.anim_started=self.animated_plot.get_ani_playing()
+        #self.anim_started=self.animated_plot.get_ani_playing()
         self.animated_plot.start_animation()
-        self.anim_started = True
-         
+        #self.anim_started = True
+
     def stop_graphing(self):
         '''
         Method to stop the animation, get the current data and store it
         '''
+        self.animated_plot.stop_animation()
         
-        self.anim_started=self.animated_plot.get_ani_playing()
-        if self.anim_started:
-            self.animated_plot.stop_animation()
-            self.anim_started = False
+        #self.anim_started=self.animated_plot.get_ani_playing()
+        #if self.anim_started:
+        #    self.animated_plot.stop_animation()
+        #    self.anim_started = False
 
     def start_recording(self):
         '''
