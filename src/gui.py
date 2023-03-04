@@ -1,9 +1,9 @@
 """
 This module provides a graphical user interface (GUI) for displaying a dynamic
 plot using the Tkinter library and the matplotlib library. It also allows the user to
-start and stop recording the data and storing it in a csv file using the options 
-provided in the GUI. In other words, the data is stored as a Pandas DataFrame and can 
-be saved in a new file, appended to an existing file or overwritten in an existing 
+start and stop recording the data and storing it in a csv file using the options
+provided in the GUI. In other words, the data is stored as a Pandas DataFrame and can
+be saved in a new file, appended to an existing file or overwritten in an existing
 file based on the user's choice.
 """
 import tkinter as tk
@@ -13,37 +13,39 @@ import datetime
 import os
 import pandas as pd
 import matplotlib
-import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from graph import AnimatedPlot
 
 
-headless = None
+HEADLESS = None
 try:
     matplotlib.use("TkAgg")
 except ImportError:
-    headless = True
+    HEADLESS = True
     print("Running in headless mode...")
 
 class Main():
-    ''' 
-    Main class that creates the GUI window, buttons and provides functionality for 
+    '''
+    Main class that creates the GUI window, buttons and provides functionality for
     the buttons to start and stop recording the data and plotting the graph
     '''
-    def __init__(self, animated_plot):
+    def __init__(self, anim_plot):
         """
         Constructor for GUI,
         Animated plot specifies embedded graph
         """
-        # self.anim_started=False
-        
-        self.saved_files_dir =""
-        self.filename=""
-        self.start_data_index=0
-        self.end_data_index=0
-        self.animated_plot = animated_plot
 
-        if not headless:
+        self.data_indices = {
+            "start_data_index" : 0,
+            "end_data_index"   : 0,
+        }
+
+        self.window_data = {
+            'animated_plot' : anim_plot,
+
+        }
+
+        if not HEADLESS:
             self.root = tk.Tk()
             self.root.title("RSSI Strength Plot")
 
@@ -63,24 +65,21 @@ class Main():
         }
 
         for name, button in self.buttons.items():
-           button.pack(side=self.pack_method.get(name))
-         
-        self.figure = self.animated_plot.fig
-        self.canvas = FigureCanvasTkAgg(self.figure, self.root)
-        self.canvas.get_tk_widget().pack()
+            button.pack(side=self.pack_method.get(name))
 
-        #States
-        self.anim_started=False
-        self.graph_started=False
+        self.window_data['figure'] = self.window_data['animated_plot'].fig
+        self.window_data['canvas'] = FigureCanvasTkAgg(self.window_data['figure'], self.root)
+        self.window_data['canvas'].get_tk_widget().pack()
 
-        #self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        self.data_frame = pd.DataFrame()
+
         self.root.mainloop()
 
     def toggle_graphing(self):
         '''
         Method to start or stop the animation/graphing depending on the current state
         '''
-        self.animated_plot.toggle_pause()
+        self.window_data['animated_plot'].toggle_pause()
         #if self.graph_started:
         #    self.stop_graphing()
         #    self.buttons['graph_button'].config(text="Start Graphing")
@@ -90,22 +89,19 @@ class Main():
         #    self.graph_started=True
         #    self.start_graphing()
 
-
-            
     def start_graphing(self):
         '''
         Method to starts the animation/graphing
         '''
         #self.anim_started=self.animated_plot.get_ani_playing()
-        self.animated_plot.start_animation()
+        self.window_data['animated_plot'].start_animation()
         #self.anim_started = True
 
     def stop_graphing(self):
         '''
         Method to stop the animation, get the current data and store it
         '''
-        self.animated_plot.stop_animation()
-        
+        self.window_data['animated_plot'].stop_animation()
         #self.anim_started=self.animated_plot.get_ani_playing()
         #if self.anim_started:
         #    self.animated_plot.stop_animation()
@@ -115,23 +111,23 @@ class Main():
         '''
         Method to start the animation in the AnimatedPlot object
         '''
-        start_data_set = self.animated_plot.get_current_data()
-        self.start_data_index=len(self.animated_plot.get_current_data())
-        print("starting index", self.start_data_index-1)
-        self.animated_plot.start_animation()
-        self.anim_started = True
+        self.data_indices['start_data_index']=len(
+            self.window_data['animated_plot'].get_current_data()
+        )
+        print("starting index", self.data_indices['start_data_index']-1)
+        self.window_data['animated_plot'].start_animation()
         self.buttons['graph_button'].config(text="Stop Graphing")
         #self.graph_button.config(text="Stop Graphing")
-        self.graph_started=True
+        #self.graph_started=True
 
     def stop_recording(self):
         '''
         Method to stop the animation, get the current data and
         store it in a Pandas DataFrame
         '''
-        self.anim_started = False
-        data = self.animated_plot.get_current_data()
-        self.end_data_index=len(data)-1
+        self.window_data['animated_plot'].stop_animation()
+        data = self.window_data['animated_plot'].get_current_data()
+        self.data_indices['end_data_index']=len(data)-1
         # note for me :A Pandas DataFrame is a two-dimensional data structure that
         # can store data in tabular form (rows and columns). The rows can be
         # labeled and the columns can be named. It is similar to a spreadsheet
@@ -139,16 +135,18 @@ class Main():
         # and manipulation methods.DataFrames can be created from different data
         # sources such as dictionaries, lists, arrays, and more, and can
         # be easily exported to various file formats (e.g., CSV, Excel, JSON, etc.).
-        self.data_frame = pd.DataFrame(data[self.start_data_index:self.end_data_index], 
-        columns=["Time", "RSSI Value", "Node ID"])
+        self.data_frame = pd.DataFrame(
+            data[self.data_indices['start_data_index']:self.data_indices['end_data_index']],
+            columns=["Time", "RSSI Value", "Node ID"]
+        )
         print("data frame before caling the saving choices", self.data_frame)
         self.saving_choices()
 
     def save_new_file(self):
         """Saves data to a new file with the format "data-YYYY-MM-DD HH:MM:SS.csv";"""
-        self.saved_files_dir = os.path.join(os.path.dirname(__file__), '..', 'saved_files')
-        os.makedirs(self.saved_files_dir, exist_ok=True)
-        file_path = os.path.join(self.saved_files_dir, "data-" +
+        saved_files_dir = os.path.join(os.path.dirname(__file__), '..', 'saved_files')
+        os.makedirs(saved_files_dir, exist_ok=True)
+        file_path = os.path.join(saved_files_dir, "data-" +
                                  str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
                                  + ".csv")
         self.data_frame.to_csv(file_path, index=False)
@@ -207,11 +205,11 @@ class Main():
         saving_options_window = tk.Toplevel()
         saving_options_window.title("Save Data Options")
 
-        new_file_button =  tk.Button(saving_options_window, text = "Save data in a new file",
+        new_file_button =  tk.Button(saving_options_window, text="Save data in a new file",
                                      command = self.save_new_file)
-        append_button =    tk.Button(saving_options_window, text = "Append data to an existing file",
+        append_button =    tk.Button(saving_options_window, text="Append data to an existing file",
                                      command = self.append_to_file)
-        overwrite_button = tk.Button(saving_options_window, text = "Overwrite existing file",
+        overwrite_button = tk.Button(saving_options_window, text="Overwrite existing file",
                                      command = self.overwrite_file)
 
         new_file_button.pack()
