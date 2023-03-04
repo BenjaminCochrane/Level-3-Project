@@ -5,6 +5,7 @@ from collections import defaultdict
 import matplotlib.pyplot as plt
 from matplotlib import animation
 import numpy as np
+import pandas as pd
 #from serial_interface import SerialInterface
 from mock import Mock
 
@@ -43,22 +44,6 @@ class AnimatedPlot():
             self.animation.pause()
         self.paused = not self.paused
 
-    #def start_animation(self):
-    #    '''Function to start animation'''
-    #    self.ani_playing = animation.FuncAnimation(self.fig, self.update, interval=125)
-    #    self.ani_playing.event_source.start()
-    #    plt.show()
-
-    #def stop_animation(self):
-    #    '''Function to stop animation'''
-    #    self.ani_playing.event_source.stop()
-
-    #def get_ani_playing(self):
-    #    '''Function to get the state of the animation'''
-    #    if self.ani_playing:
-    #        self.ani_playing.event_source.stop()
-    #    return self.ani_playing
-
     def update(self, _, num_nodes=1):
         """Updates the graph with new plots
             num_nodes should only be specified when using the mock
@@ -90,11 +75,20 @@ class AnimatedPlot():
         self.axis.legend()
         title=plt.title("Frequency changes detected by sensor")
         title.set_weight('bold')
-        #self.current_data.append((time, rssi_value, node_id))
-    #def get_current_data(self):
-    #    '''Function that returns the current data'''
-    #    print("get_current_data method called, current_data:", self.current_data)
-    #    return self.current_data
+
+    def get_current_data(self):
+        '''Return node dict in alternate format'''
+        data = []
+
+        for node_id, tup in self.node_dict.items():
+            print("tup:",tup)
+            time = tup[0]
+            rssi = tup[1]
+            for i in range(0, len(time)):
+                data.append([time[i], rssi[i], node_id])
+
+        sorted(data, key=lambda x: x[0])
+        return data
 
     def __str__(self):
         return "graph"
