@@ -5,7 +5,6 @@ from collections import defaultdict
 import matplotlib.pyplot as plt
 from matplotlib import animation
 import numpy as np
-import pandas as pd
 #from serial_interface import SerialInterface
 from mock import Mock
 
@@ -84,8 +83,9 @@ class AnimatedPlot():
             print("tup:",tup)
             time = tup[0]
             rssi = tup[1]
-            for i in range(0, len(time)):
-                data.append([time[i], rssi[i], node_id])
+            #for i in range(0, len(time)):
+            for _, (time_val, rssi_val) in enumerate(zip(time, rssi)):
+                data.append([time_val, rssi_val, node_id])
 
         sorted(data, key=lambda x: x[0])
         return data
@@ -100,6 +100,8 @@ class AnimatedPlot():
     def get_std_dev(self, node_id):
         """Returns the standard deviation of the RSSI values of a given node"""
         return np.std(self.node_dict[node_id])
+
+
 
 if __name__ == "__main__":
     anim_plot = AnimatedPlot(10)
