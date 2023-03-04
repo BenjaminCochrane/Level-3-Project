@@ -23,7 +23,10 @@ import datetime
 class test_gui(Main):
     def __init__(self, animated_plot):
         '''Override to run headless'''
-        self.animated_plot = animated_plot
+        self.window_data = {
+            'animated_plot' : animated_plot,
+
+        }
         pass
 
 animated_plot = AnimatedPlot()
