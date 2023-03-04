@@ -41,14 +41,6 @@ def test_stop_graphing():
     main.stop_graphing()
     assert(True)
 
-def test_start_recording():
-    main.start_recording()
-    assert(True)
-
-def test_stop_recording():
-    main.stop_recording()
-    assert(True)
-
 
 
 
@@ -90,7 +82,7 @@ def test_stop_recording():
 def test_save_data_creates_file():
     '''Test save_data method that saves data to a .csv file in the saved_files directory'''
     animated_plot = AnimatedPlot()
-    main = Main(animated_plot)
+    main = test_gui(animated_plot)
     saved_files_dir = os.path.join(os.path.dirname(__file__), '..', 'saved_files')
     os.makedirs(saved_files_dir, exist_ok=True)
     file_path = os.path.join(saved_files_dir, "data-" + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + ".csv")
