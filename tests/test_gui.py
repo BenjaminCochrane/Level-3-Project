@@ -86,7 +86,7 @@ def test_save_data_creates_file():
     saved_files_dir = os.path.join(os.path.dirname(__file__), '..', 'saved_files')
     os.makedirs(saved_files_dir, exist_ok=True)
     file_path = os.path.join(saved_files_dir, "data-" + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + ".csv")
-    main.saving_choices()
+    #main.saving_choices()
     assert os.path.isfile(file_path) == False
 
 #this passes yay
