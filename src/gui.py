@@ -57,6 +57,7 @@ class Main():
             'next_page'      :tk.Button(self.root, text="Time Slicing page"),
         }
 
+
         self.pack_method = {
             'next_page' : "right",
         }
@@ -72,6 +73,7 @@ class Main():
         self.anim_started=False
         self.graph_started=False
 
+        #self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.root.mainloop()
 
     def toggle_graphing(self):
