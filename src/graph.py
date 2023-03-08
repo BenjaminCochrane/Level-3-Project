@@ -1,6 +1,12 @@
 """
-Graph as a class
+This module provides a graphical user interface (GUI) for displaying a dynamic
+plot using the Tkinter library and the matplotlib library. It also allows the user to
+start and stop recording the data and storing it in a csv file using the options
+provided in the GUI. In other words, the data is stored as a Pandas DataFrame and can
+be saved in a new file, appended to an existing file or overwritten in an existing
+file based on the user's choice.
 """
+
 from collections import defaultdict
 import matplotlib.pyplot as plt
 from matplotlib import animation
@@ -8,10 +14,9 @@ import numpy as np
 from serial_interface import SerialInterface
 from mock import Mock
 
-
 class AnimatedPlot():
     """Animation function for graphing"""
-    def __init__ (self, window = None, interface = "mock"):
+    def __init__ (self, window = None, interface = 'mock'):
         """Constructor function for AnimPlot
             window specifies how many values should be used
             for the calculation of the running average
@@ -23,35 +28,58 @@ class AnimatedPlot():
             self.interface = SerialInterface()
         if interface == "mock":
             self.interface  = Mock()
-        self.fig, self.axis = plt.subplots()
-        self.ani = animation.FuncAnimation(self.fig, self.update, interval=250)
 
-    def update(self, _):
+        self.fig, self.axis = plt.subplots()
+        #self.ani_playing = None
+        #self.current_data = []
+        self.animation = animation.FuncAnimation(self.fig, self.update, interval=25)
+        self.paused = False
+
+    def start_animation(self):
+        '''Function to unpause animation'''
+        self.animation.resume()
+        self.paused = False
+
+    def stop_animation(self):
+        '''Function to pause animation'''
+        self.animation.pause()
+        self.paused = True
+
+    def toggle_pause(self):
+        '''Function to toggle the pausing of animation'''
+        if self.paused:
+            self.animation.resume()
+        else:
+            self.animation.pause()
+        self.paused = not self.paused
+
+    def update(self, _, num_nodes=1):
         """Updates the graph with new plots
-            num_nodes is only used with the mock
+            num_nodes should only be specified when using the mock
         """
-        data = self.interface.get_values()
-        if data:
-            for tup in data:
-                self.node_dict[tup[2]][0].append(tup[0])
-                self.node_dict[tup[2]][1].append(tup[1])
-            time, _, node_id = data[0][0],data[0][1],data[0][2]
-            self.node_dict['running_average'][0].append(time)
-            if self.window:
-                count = min(self.window, len(self.node_dict[node_id][1]))
-                self.node_dict['running_average'][1].append(
-                    sum(self.node_dict[node_id][1][len(self.node_dict[node_id][1]) - count:])/count
-                )
-            else:
-                self.node_dict['running_average'][1].append(
-                    sum(self.node_dict[node_id][1])/len(self.node_dict[node_id][0])
-                )
-        self.calculate_node_diff('Mock0', 'Mock1')
+        time, rssi_value, node_id = self.interface.get_values()
+    #    self.current_data.append([time, rssi_value, node_id])
+        self.node_dict[node_id][0].append(time)
+        self.node_dict[node_id][1].append(rssi_value)
+        #Running average
+        self.node_dict['running_average'][0].append(time)
+        if self.window:
+            count = min(self.window, len(self.node_dict[node_id][1]))
+            self.node_dict['running_average'][1].append(
+                sum(self.node_dict[node_id][1][len(self.node_dict[node_id][1]) - count:])/count
+            )
+        else:
+            self.node_dict['running_average'][1].append(
+                sum(self.node_dict[node_id][1])/len(self.node_dict[node_id][0])
+            )
+
         self.axis.clear()
         for key, value in self.node_dict.items():
             self.axis.plot(value[0], value[1], label=key)
+
         self.axis.axes.set_xlabel("Time in seconds")
         self.axis.axes.set_ylabel("RSSI Strength (ΔdBm)")
+
         self.axis.grid(axis = 'y')
         self.axis.legend()
         title=plt.title("Frequency changes detected by sensor")
@@ -169,8 +197,9 @@ class AnimatedPlot():
         self.node_dict['diff_' + str(node_id_1) + '_' + str(node_id_2)] = diff
 
 
+
+
 if __name__ == "__main__":
-    anim_plot = AnimatedPlot(interface = "mock")
-    anim = anim_plot.ani
+    anim_plot = AnimatedPlot(10)
     plt.show()
-     
+    print(anim_plot.get_std_dev('Mock0'))

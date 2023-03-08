@@ -43,7 +43,7 @@ class Mock():
         self.counter += 1
         if self.counter > self.count:
             time += (self.counter-self.count) * self.data["Time"][0]
-        return [[ float(time),float(sensor),node_id ]]
+        return [ float(time),float(sensor),node_id ]
 
     def __str__(self):
         """Return data as a string"""
