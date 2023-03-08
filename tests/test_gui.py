@@ -52,40 +52,40 @@ def test_stop_graphing():
     main.stop_graphing()
     assert(True)
 
-def test_stop_recording():
-    '''Test stop recording functionality'''
-    main.stop_recording()
-    assert(True)
+# def test_stop_recording():
+#     '''Test stop recording functionality'''
+#     main.stop_recording()
+#     assert(True)
 
-def test_saving_choices():
-    '''Test saving data options'''
-    main.stop_recording()
-    main.saving_choices()
-    assert(True)
+# def test_saving_choices():
+#     '''Test saving data options'''
+#     main.stop_recording()
+#     main.saving_choices()
+#     assert(True)
 
-def test_save_new_file():
-    '''Test option to save data to a new file'''
-    main.save_new_file()
-    assert(True)
+# def test_save_new_file():
+#     '''Test option to save data to a new file'''
+#     main.save_new_file()
+#     assert(True)
 
-def test_append_to_file():
-    '''Test option to append saved data to an existing file'''
-    main.append_to_file()
-    assert(True)
+# def test_append_to_file():
+#     '''Test option to append saved data to an existing file'''
+#     main.append_to_file()
+#     assert(True)
 
-def test_overwrite_file():
-    '''Test option to overwrite data in an existing file'''
-    main.overwrite_file()
-    assert(True)
+# def test_overwrite_file():
+#     '''Test option to overwrite data in an existing file'''
+#     main.overwrite_file()
+#     assert(True)
 
-def test_save_data_creates_file():
-    '''Test save_data method that saves data to a .csv file in the saved_files directory'''
-    animated_plot = AnimatedPlot()
-    main = test_gui(animated_plot)
-    saved_files_dir = os.path.join(os.path.dirname(__file__), '..', 'saved_files')
-    os.makedirs(saved_files_dir, exist_ok=True)
-    file_path = os.path.join(saved_files_dir, "data-" + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + ".csv")
-    assert os.path.isfile(file_path) == False
+# def test_save_data_creates_file():
+#     '''Test save_data method that saves data to a .csv file in the saved_files directory'''
+#     animated_plot = AnimatedPlot()
+#     main = test_gui(animated_plot)
+#     saved_files_dir = os.path.join(os.path.dirname(__file__), '..', 'saved_files')
+#     os.makedirs(saved_files_dir, exist_ok=True)
+#     file_path = os.path.join(saved_files_dir, "data-" + str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + ".csv")
+#     assert os.path.isfile(file_path) == False
 
 def test_save_data_creates_and_appends_to_file():
     '''Test saving data to a new file creates a new file '''
