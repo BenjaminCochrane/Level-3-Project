@@ -109,7 +109,7 @@ class AnimatedPlot():
 
     def get_std_dev(self, node_id):
         """Returns the standard deviation of the RSSI values of a given node"""
-        return np.std(self.node_dict[node_id])
+        return np.format_float_positional(np.std(self.node_dict[node_id]), precision=3)
 
     def calculate_gradient(self, initial, final):
         """Take tuple of thing"""
