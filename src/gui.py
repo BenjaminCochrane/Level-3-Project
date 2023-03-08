@@ -11,6 +11,7 @@ from tkinter import filedialog
 from tkinter import messagebox
 import datetime
 import os
+import sys
 import pandas as pd
 import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -70,6 +71,15 @@ class Main():
         self.window_data['figure'] = self.window_data['animated_plot'].fig
         self.window_data['canvas'] = FigureCanvasTkAgg(self.window_data['figure'], self.root)
         self.window_data['canvas'].get_tk_widget().pack()
+
+        #std deviation text box
+        self.standard_deviation_text_box = tk.Text(self.root, height = 3, width = 40)
+        self.standard_deviation_text_box.pack()
+        self.updating_standard_deviation()
+
+        #adds pop up when window is closed
+        #to make sure the user wants to exit
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         self.data_frame = pd.DataFrame()
 
@@ -215,6 +225,25 @@ class Main():
         new_file_button.pack()
         append_button.pack()
         overwrite_button.pack()
+
+    def updating_standard_deviation(self):
+        """A live updating standard deviation of every node"""
+        node_dictionary = self.window_data["animated_plot"].get_node_dict()
+        self.standard_deviation_text_box.delete(1.0, tk.END)
+        self.standard_deviation_text_box.insert(tk.END, "Standard Deviation:\n")
+        std_text=""
+        for node in node_dictionary.keys():
+            std_text+=node+ ": "+str(self.window_data["animated_plot"].get_std_dev(node))+'\n'
+
+        self.standard_deviation_text_box.insert(tk.END, std_text)
+
+        self.standard_deviation_text_box.after(100, self.updating_standard_deviation)
+
+    def on_closing(self):
+        """Checks if you want to quit the program"""
+        if messagebox.askokcancel("Quit", "Do you want to quit?"):
+            self.root.destroy()
+            sys.exit(0)
 
 if __name__ == "__main__":
     animated_plot= AnimatedPlot(10)

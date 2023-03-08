@@ -47,8 +47,8 @@ def test_running_average():
 def test_standard_deviation():
     """Test that standard deviation calculations are correct"""
     node_dict = anim_plot.get_node_dict()
-    std_dev = np.std(node_dict['Mock0'])
-    assert(std_dev == anim_plot.get_std_dev('Mock0'))
+    std_dev_rounded = np.format_float_positional(np.std(node_dict['Mock0']), precision=3)
+    assert(std_dev_rounded == anim_plot.get_std_dev('Mock0'))
 
 def test_calculate_gradient():
     """Test the gradient is calculated correctly"""
