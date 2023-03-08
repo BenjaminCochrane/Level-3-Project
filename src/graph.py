@@ -53,7 +53,7 @@ class AnimatedPlot():
             self.animation.pause()
         self.paused = not self.paused
 
-    def update(self, _, num_nodes=1):
+    def update(self, _):
         """Updates the graph with new plots
             num_nodes should only be specified when using the mock
         """
