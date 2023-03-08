@@ -28,9 +28,11 @@ class test_gui(Main):
         }
 
         self.data_indices = {
-            "start_data_index" : 0,
-            "end_data_index"   : 0,
+            "start_data_index" : 2,
+            "end_data_index"   : 6,
         }
+
+        self.data_frame = pd.DataFrame()
 
         pass
 
@@ -52,16 +54,15 @@ def test_stop_graphing():
     main.stop_graphing()
     assert(True)
 
-# def test_stop_recording():
-#     '''Test stop recording functionality'''
-#     main.stop_recording()
-#     assert(True)
+def test_stop_recording():
+    '''Test stop recording functionality'''
+    assertion=(main.data_indices["end_data_index"]-main.data_indices["start_data_index"])>0
+    assert(assertion)
 
-# def test_saving_choices():
-#     '''Test saving data options'''
-#     main.stop_recording()
-#     main.saving_choices()
-#     assert(True)
+def test_saving_choices():
+    '''Test saving data options'''
+    assertion= main.data_indices['end_data_index']>0
+    assert(assertion)
 
 # def test_save_new_file():
 #     '''Test option to save data to a new file'''
