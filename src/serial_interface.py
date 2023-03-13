@@ -3,8 +3,19 @@ Serial interfacing as a class
 """
 
 import time
+import logging
+import datetime
 import serial
 import serial.tools.list_ports
+
+logging.basicConfig(
+    filename=str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")) + ".log",
+    format='%(asctime)s %(message)s',
+    filemode='w'
+)
+
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 class SerialInterface():
     """Class representing the connection between the receiver and the graph"""
@@ -23,7 +34,7 @@ class SerialInterface():
         for port in serial.tools.list_ports.comports():
             try:
                 self.port = str(port.device)
-                self.serial_instance = serial.Serial(timeout = 0.25)
+                self.serial_instance = serial.Serial(timeout = 1)
                 self.serial_instance.baudrate = 115200
                 self.serial_instance.port = self.port
                 self.serial_instance.open()
@@ -40,25 +51,27 @@ class SerialInterface():
         if self.serial_instance:
             self.serial_instance.close()
         if self.initialised:
-            self.serial_instance = serial.Serial(timeout = None)
+            self.serial_instance = serial.Serial(timeout=0)
             self.serial_instance.baudrate = 115200
             self.serial_instance.port = self.port
             self.serial_instance.open()
+            logger.info("Opened port %s", self.port)
 
         if not self.initialised:
-            print("No ports detected")
+            logger.warning("Failed to automatically detect port")
 
 
     def read_buffer(self) -> list:
         """Read full buffer from the serial port"""
         buffer_size = self.serial_instance.inWaiting()
         if buffer_size > 0:
-            print(repr(self.serial_instance.read(buffer_size).decode('utf-8')))
+            #print(repr(self.serial_instance.read(buffer_size).decode('utf-8')))
             return [
                 item for item in
                     self.serial_instance.read(buffer_size).decode('utf-8').split('\r\n')
                 if item != ""
             ]
+        logger.info("No packets were found")
         return None
 
     def get_values(self) -> list:
@@ -71,10 +84,19 @@ class SerialInterface():
 
                 data = []
                 for item in buffer:
+                    print("Item:", item)
                     try:
-                        node_id, _ , rssi_value = item.split('_')
-                        data.append([current_time - self.start_time, int(rssi_value), node_id])
+                        node_id, ref , rssi_value, frequency, transmitter_power =item.split('_')
+                        data.append(
+                            [current_time - self.start_time,
+                             int(rssi_value),
+                             node_id,
+                             ref,
+                             frequency,
+                             transmitter_power]
+                        )
                     except ValueError:
+                        logger.info("Received packet: %s", item)
                         continue
 
                 return data
@@ -85,7 +107,6 @@ class SerialInterface():
         """Returns a tuple containing the node_id, time (x), and RSSI (y)"""
         if self.serial_instance:
             packet = self.serial_instance.readline()
-            print(packet.decode('utf-8'))
 
             try:
                 node_id, _ , rssi_value = packet.decode('utf-8').split('_')
@@ -96,6 +117,7 @@ class SerialInterface():
                 return time.time()-self.start_time, int(rssi_value), str(node_id)
 
             except ValueError:
+                print(packet.decode('utf-8'))
                 return (None, None, None)
 
         raise AssertionError("No port was opened")
@@ -104,6 +126,7 @@ class SerialInterface():
         """Destructor for SerialInterface class, closes the serial connection if it was opened"""
         if self.serial_instance:
             self.serial_instance.close()
+            logger.info("Serial instance was closed")
 
     def __str__(self):
         """Return the name of the open port as a string"""
@@ -135,5 +158,7 @@ if __name__ == "__main__":
     serial_interface_obj = SerialInterface()
     print(serial_interface_obj)
     while True:
-        print(serial_interface_obj.get_values())
+        print("values: ", serial_interface_obj.get_values())
+        print("End of values")
+        print("\n\n")
         time.sleep(3)
