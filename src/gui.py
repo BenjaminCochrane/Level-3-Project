@@ -6,16 +6,18 @@ provided in the GUI. In other words, the data is stored as a Pandas DataFrame an
 be saved in a new file, appended to an existing file or overwritten in an existing
 file based on the user's choice.
 """
+import sys
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
+from functools import partial
 import datetime
 import os
-import sys
 import pandas as pd
 import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from graph import AnimatedPlot
+from slice_graph import SliceGraph
 
 
 HEADLESS = None
@@ -43,7 +45,6 @@ class Main():
 
         self.window_data = {
             'animated_plot' : anim_plot,
-
         }
 
         if not HEADLESS:
@@ -51,26 +52,25 @@ class Main():
             self.root.title("RSSI Strength Plot")
 
         self.buttons = {
-            'graph_button'   :tk.Button(self.root, text="Toggle Graphing",
+            'graph_button'          :tk.Button(self.root, text="Toggle Graphing",
                                         command=self.toggle_graphing),
-            'start_recording':tk.Button(self.root, text="Start Recording",
+            'start_recording'       :tk.Button(self.root, text="Start Recording",
                                         command=self.start_recording),
-            'stop_recording' :tk.Button(self.root, text="Stop Recording",
+            'stop_recording'        :tk.Button(self.root, text="Stop Recording",
                                         command=self.stop_recording),
-            'next_page'      :tk.Button(self.root, text="Time Slicing page"),
+            "slicing_window_button" :tk.Button(self.root, text="Time Slicing",
+                                                command = self.open_slice_window)
         }
 
-
-        self.pack_method = {
-            'next_page' : "right",
-        }
-
-        for name, button in self.buttons.items():
-            button.pack(side=self.pack_method.get(name))
+        for button in self.buttons.values():
+            button.pack()
 
         self.window_data['figure'] = self.window_data['animated_plot'].fig
         self.window_data['canvas'] = FigureCanvasTkAgg(self.window_data['figure'], self.root)
         self.window_data['canvas'].get_tk_widget().pack()
+
+        # Set-up for slice window
+        self.slice_canvas = None
 
         #std deviation text box
         self.standard_deviation_text_box = tk.Text(self.root, height = 3, width = 40)
@@ -226,6 +226,102 @@ class Main():
         append_button.pack()
         overwrite_button.pack()
 
+    def open_slice_window(self):
+        """Function to create slice window. Asks user for 
+        filename [csv] from which the slice should be taken"""
+        # Set the root and get filename from user
+        root = self.root
+
+        while True:
+            filename = filedialog.askopenfilename() # Ask for csv to take slice from
+            if not(filename.endswith(".csv")) or filename is None:
+                messagebox.showerror("Wrong File Type!", "Wrong File Type! \
+                                     Please choose a csv file.")
+            else:
+                break
+
+        # Opens and focuses on the slice window
+        slice_window = tk.Toplevel(root)
+        # Dictionary that holds all frames
+        frame_dict = {
+            "graph_frame" : tk.Frame(slice_window),
+            "button_frame" : tk.Frame(slice_window),
+        }
+        # Packs frames which are necessary for easier visual formatting
+        for frame in frame_dict.values():
+            frame.pack()
+
+        # Setup for the Slice Window
+        slice_window.title("Slice")
+        slice_window.geometry("500x500")
+        slice_window.focus()
+
+        def take_slice(slice_graph, start_entry, end_entry) -> None:
+            """Helper function to take a slice for slice_button"""
+            # Clean the canvas so it can be redrawn
+            self.slice_canvas.get_tk_widget().pack_forget()
+            # Get the string in first and second entry
+            time_strings = {
+                "start_time_str" : start_entry.get(),
+                "end_time_str" : end_entry.get()
+            }
+            slice_graph.make_slice(time_strings["start_time_str"], time_strings["end_time_str"])
+            # Redraw and repack
+            self.slice_canvas = FigureCanvasTkAgg\
+                (figure = slice_graph.get_plot_fig(), master = frame_dict["graph_frame"])
+            self.slice_canvas.get_tk_widget().pack()
+
+        def save_slice(slice_graph) -> None:
+            """Takes current slice data and saves as csv, called by Save Slice button"""
+            file = filedialog.asksaveasfile(mode='w', defaultextension=".csv")
+            data = slice_graph.get_data_frame()
+            data = data.to_csv(index = False)
+            file.write(data)
+            file.close()
+
+        # Creates an instance of SliceGraph class
+        slice_graph = SliceGraph(filename)
+        if slice_graph.get_data_frame() is None:
+            slice_window.destroy()
+        # Variable for storing the maximum/end time of the graph
+        end_time = slice_graph.get_max_time()
+        self.slice_canvas = FigureCanvasTkAgg\
+            (figure = slice_graph.get_plot_fig(), master = frame_dict["graph_frame"])
+        self.slice_canvas.get_tk_widget().pack()
+
+        # Creation and positioning of slice and save slice buttons and user entry fields
+        labels_entries={
+            "start_time_label" : tk.Label(frame_dict["button_frame"], text="Start time"),
+            "start_entry" : tk.Entry(frame_dict["button_frame"]),
+            "end_time_label" : tk.Label(frame_dict["button_frame"], text="End time"),
+            "end_entry" : tk.Entry(frame_dict["button_frame"])
+        }
+
+        for element in labels_entries.values():
+            element.pack(side=tk.LEFT)
+
+        labels_entries["start_entry"].insert(0, "0")
+        labels_entries["end_entry"].insert(0, f"{end_time}")
+
+        # Creates partial of take_slice and save slice, so params can be included in button call
+        partials = {
+            "take_slice_partial" : partial(take_slice, slice_graph, labels_entries["start_entry"],
+                                           labels_entries["end_entry"]),
+            "save_slice_partial" : partial(save_slice, slice_graph)
+        }
+        buttons_slice = {
+            "slice_button"      : tk.Button(frame_dict["button_frame"], text="Take a Slice",
+                                            command=partials["take_slice_partial"]),
+            "save_slice_button" : tk.Button(frame_dict["button_frame"], text="Save a Slice",
+                                            command=partials["save_slice_partial"]),
+        }
+
+        for button in buttons_slice.values():
+            button.pack(side=tk.LEFT)
+
+    def __str__(self):
+        return "GUI"
+
     def updating_standard_deviation(self):
         """A live updating standard deviation of every node"""
         node_dictionary = self.window_data["animated_plot"].get_node_dict()
@@ -249,9 +345,3 @@ if __name__ == "__main__":
     animated_plot= AnimatedPlot(10)
     gui = Main(animated_plot)
     #plt.show()
-
-# if __name__ == "__main__":
-#     root = tk.Tk()
-#     anim_plot = AnimatedPlot(10)
-#     app = Main(anim_plot, root)
-#     root.mainloop()
