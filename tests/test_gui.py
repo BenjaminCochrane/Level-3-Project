@@ -1,23 +1,23 @@
-import pytest
-import pandas as pd
-# from src.gui import Main
-# from src.mock import mock
-import sys
-import os
-
+"""
+Tests for gui
+"""
 # add the src directory to the module search path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from gui import Main
 from graph import AnimatedPlot
 from mock import Mock
+import sys
 import os
 import tempfile
 import time
+import pandas as pd
 from PIL import Image
 from PIL import ImageGrab
 
 import time
 import datetime
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+
 
 class test_gui(Main):
     def __init__(self, animated_plot):

@@ -18,7 +18,7 @@ class SerialInterface():
 
         self.buffer_obj = ""
 
-        initialised = False
+        self.initialised = False
 
         for port in serial.tools.list_ports.comports():
             try:
@@ -31,7 +31,7 @@ class SerialInterface():
                 #This checks for ports sending data - is this an issue?
                 #Reason: We get partial packets here: can't check format
                 if self.serial_instance.readline():
-                    initialised = True
+                    self.initialised = True
                     break
             except serial.SerialException:
                 continue
@@ -39,13 +39,13 @@ class SerialInterface():
         #If we found a receiver reopen it without a timeout
         if self.serial_instance:
             self.serial_instance.close()
-        if initialised:
-            self.serial_instance = serial.Serial(timeout=None)
+        if self.initialised:
+            self.serial_instance = serial.Serial(timeout = None)
             self.serial_instance.baudrate = 115200
             self.serial_instance.port = self.port
             self.serial_instance.open()
 
-        if not initialised:
+        if not self.initialised:
             print("No ports detected")
 
 
@@ -110,6 +110,26 @@ class SerialInterface():
         if self.port:
             return self.port
         return self.name
+
+    def get_initialised(self):
+        """Returns the serial interfaces' intialisation state"""
+        return self.initialised
+
+    def get_serial_instance(self):
+        """Returns serial instance (mock/serial)"""
+        return self.serial_instance
+
+    def get_port_list(self) -> list:
+        """Returns the list of ports that are available"""
+        return [str(port.device) for port in serial.tools.list_ports.comports()]
+
+    def set_port_manually(self, device):
+        """Sets each port that is available manually"""
+        self.port = device
+        self.serial_instance = serial.Serial(timeout=None)
+        self.serial_instance.baudrate = 115200
+        self.serial_instance.port = self.port
+        self.serial_instance.open()
 
 if __name__ == "__main__":
     serial_interface_obj = SerialInterface()

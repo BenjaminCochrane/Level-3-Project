@@ -10,6 +10,7 @@ import sys
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
+from tkinter import OptionMenu
 from functools import partial
 import datetime
 import os
@@ -38,6 +39,17 @@ class Main():
         Animated plot specifies embedded graph
         """
 
+        # self.animated_plot = AnimatedPlot(interface="serial")
+
+        # if self.animated_plot.get_serial_interface() is None:
+        #     self.animated_plot = AnimatedPlot(interface="mock")
+        #     self.serial_mock_button.config(text="Switch to Serial Mode")
+        #     print("switched to mock")
+        #     self.interface_version = "mock"
+        # else:
+        #     self.serial_mock_button.config(text="Switch to Mock Mode")
+        #     self.interface_version = "serial"
+
         self.data_indices = {
             "start_data_index" : 0,
             "end_data_index"   : 0,
@@ -45,6 +57,7 @@ class Main():
 
         self.window_data = {
             'animated_plot' : anim_plot,
+            'interface_version' : None,
         }
 
         if not HEADLESS:
@@ -58,6 +71,9 @@ class Main():
                                         command=self.start_recording),
             'stop_recording'        :tk.Button(self.root, text="Stop Recording",
                                         command=self.stop_recording),
+            'next_page'      :tk.Button(self.root, text="Time Slicing page"),
+            'serial_mock_button' :tk.Button(self.root, text="---",
+                                            command=self.switch_serial_mock),
             "slicing_window_button" :tk.Button(self.root, text="Time Slicing",
                                                 command = self.open_slice_window)
         }
@@ -69,6 +85,15 @@ class Main():
         self.window_data['canvas'] = FigureCanvasTkAgg(self.window_data['figure'], self.root)
         self.window_data['canvas'].get_tk_widget().pack()
 
+        #checks if serial works and if not then a mock is brought up
+        if self.window_data["animated_plot"].get_serial_interface() is None:
+            self.window_data["animated_plot"] = AnimatedPlot(interface="mock")
+            self.buttons["serial_mock_button"].config(text="Switch to Serial Mode")
+            print("switched to mock")
+            self.window_data["interface_version"] = "mock"
+        else:
+            self.buttons["serial_mock_button"].config(text="Switch to Mock Mode")
+            self.window_data["interface_version"] = "serial"
         # Set-up for slice window
         self.slice_canvas = None
 
@@ -225,6 +250,25 @@ class Main():
         new_file_button.pack()
         append_button.pack()
         overwrite_button.pack()
+
+    def switch_serial_mock(self):
+        """Switches between mock mode and serial mode"""
+        if self.window_data["interface_version"] == "mock":
+            self.window_data["serial_mock_button"].config(text = "Switch to Serial Mode")
+            self.window_data["animated_plot"]  = AnimatedPlot(interface="serial")
+            self.window_data["canvas"]  = FigureCanvasTkAgg(self.animated_plot.fig, self.root)
+        elif self.window_data["interface_version"] == "serial":
+            self.window_data["serial_mock_button"].config(text = "Switch to Mock Mode")
+            self.window_data["animated_plot"]  = AnimatedPlot(interface="mock")
+            self.window_data["canvas"] = FigureCanvasTkAgg(self.animated_plot.fig, self.root)
+
+    def port_selection_dropdown(self):
+        """Allows user to select a port they want to use"""
+        interface = self.window_data["animated_plot"].get_serial_interface()
+        if interface :
+            port_list = interface.get_port_list()
+            dropdown = OptionMenu(self.root, default = None, *port_list)
+            dropdown.pack()
 
     def open_slice_window(self):
         """Function to create slice window. Asks user for 
