@@ -118,7 +118,7 @@ class AnimatedPlot():
         return np.format_float_positional(np.std(self.node_dict[node_id]), precision=3)
 
     def calculate_gradient(self, initial, final):
-        """Take tuple of thing"""
+        """Get gradient between given points"""
         #initial, final = (time, rssi)
         delta_y = final[1] - initial[1]
         delta_x = final[0] - initial[0]
@@ -209,6 +209,7 @@ class AnimatedPlot():
         self.window = window
 
 if __name__ == "__main__":
-    anim_plot = AnimatedPlot(10)
+    anim_plot = AnimatedPlot(interface = "serial")
+    anim = anim_plot.ani
     plt.show()
     print(anim_plot.get_std_dev('Mock0'))
