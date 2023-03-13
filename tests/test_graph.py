@@ -58,6 +58,10 @@ def test_calculate_node_at_all_times():
     """Test that we get the required length"""
     assert(2 == len(anim_plot.calculate_node_at_all_times([[1],[1]],[1])))
 
+def test_get_serial_interface():
+    """Tests that when a mock is used that the function won't return the interface"""
+    assert(anim_plot.get_serial_interface() is None)
+    
 def test_calculate_node_diff():
     """Test the node diff"""
     node_dict = anim_plot.get_node_dict()

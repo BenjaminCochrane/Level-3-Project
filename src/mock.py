@@ -3,9 +3,9 @@ Data Mocking as a class
 """
 
 import os
+from tkinter import filedialog
 
 import pandas as pd
-
 class Mock():
     """Class to mock data for graph"""
 
@@ -32,6 +32,8 @@ class Mock():
 
     def get_values(self, count = 1):
         '''Keep same interface for mock and serial_interface classes'''
+        while not self.count:
+            self.set_mock_file()
         return self.get_latest(count)
 
     def get_latest(self, count=1) -> list:
@@ -48,6 +50,20 @@ class Mock():
     def __str__(self):
         """Return data as a string"""
         return repr(self.data)
+
+    def set_mock_file(self):
+        '''Set file for mock to use'''
+        filename = filedialog.askopenfilename()
+
+        try:
+            path = os.path.abspath(os.path.join(os.path.dirname(filename),filename))
+            self.data = pd.read_csv(path)
+        except FileNotFoundError:
+            path = os.path.abspath(os.path.join(os.path.dirname(filename),'..',filename))
+            self.data = pd.read_csv(path)
+
+        self.count = self.data.count().min()
+        self.data = self.data[0:self.data.count().min()]
 
 if __name__ == "__main__":
     a = Mock()

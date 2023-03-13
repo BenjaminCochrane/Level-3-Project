@@ -103,6 +103,12 @@ class AnimatedPlot():
     def __str__(self):
         return "graph"
 
+    def get_serial_interface(self):
+        """returns the graphs serial interface"""
+        if self.interface == SerialInterface:
+            return self.interface
+        return None
+
     def get_node_dict(self) -> dict:
         """Returns node dict, used for testing"""
         return self.node_dict
@@ -198,6 +204,9 @@ class AnimatedPlot():
 
 
 
+    def set_window(self, window):
+        '''Set self window as window'''
+        self.window = window
 
 if __name__ == "__main__":
     anim_plot = AnimatedPlot(10)
