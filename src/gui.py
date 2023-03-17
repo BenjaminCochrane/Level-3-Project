@@ -369,7 +369,7 @@ class Main():
                                      Please choose a csv file.")
             else:
                 break
-        
+
         if filename:
             # Opens and focuses on the slice window
             slice_window = tk.Toplevel(root)
