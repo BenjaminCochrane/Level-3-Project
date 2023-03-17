@@ -14,15 +14,15 @@ from src.slice_graph import SliceGraph
 # Get the file for testing
 path = ""
 try:
-    path = os.path.abspath(os.path.join(os.path.dirname('data.csv'),'data.csv'))
+    path = os.path.abspath(os.path.join(os.path.dirname(__file__),'test_file.csv'))
 except FileNotFoundError:
-    path = os.path.abspath(os.path.join(os.path.dirname('data.csv'),'..','data.csv'))
+    path = os.path.abspath(os.path.join(os.path.dirname(__file__),'..','test_file.csv'))
 
 # Preliminary setup for some shared variables
 slice_graph = SliceGraph(path)
-cols = ["Time", "Sensor"]
-delim = ","
-test_df = pd.read_csv(path, usecols=cols, delimiter=delim)
+test_df = pd.read_csv(path)
+
+print(test_df)
 
 def test_creation():
     """Test creation of SliceGraph"""

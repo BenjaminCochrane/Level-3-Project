@@ -358,32 +358,34 @@ class Main():
         filename [csv] from which the slice should be taken"""
         # Set the root and get filename from user
         root = self.root
+        filename = None
 
         while True:
             filename = filedialog.askopenfilename() # Ask for csv to take slice from
             if not filename:
-                return None
+                break
             if not filename.endswith(".csv"):
                 messagebox.showerror("Wrong File Type!", "Wrong File Type! \
                                      Please choose a csv file.")
             else:
                 break
+        
+        if filename:
+            # Opens and focuses on the slice window
+            slice_window = tk.Toplevel(root)
+            # Dictionary that holds all frames
+            frame_dict = {
+                "graph_frame" : tk.Frame(slice_window),
+                "button_frame" : tk.Frame(slice_window),
+            }
+            # Packs frames which are necessary for easier visual formatting
+            for frame in frame_dict.values():
+                frame.pack()
 
-        # Opens and focuses on the slice window
-        slice_window = tk.Toplevel(root)
-        # Dictionary that holds all frames
-        frame_dict = {
-            "graph_frame" : tk.Frame(slice_window),
-            "button_frame" : tk.Frame(slice_window),
-        }
-        # Packs frames which are necessary for easier visual formatting
-        for frame in frame_dict.values():
-            frame.pack()
-
-        # Setup for the Slice Window
-        slice_window.title("Slice")
-        slice_window.geometry("500x500")
-        slice_window.focus()
+            # Setup for the Slice Window
+            slice_window.title("Slice")
+            slice_window.geometry("500x500")
+            slice_window.focus()
 
         def take_slice(slice_graph, start_entry, end_entry) -> None:
             """Helper function to take a slice for slice_button"""
