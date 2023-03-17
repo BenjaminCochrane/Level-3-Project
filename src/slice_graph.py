@@ -22,7 +22,7 @@ class SliceGraph():
     plot via a dataframe.
     """
     def __init__(self, filename):
-        """Call to initialise the class, filename acquired 
+        """Call to initialise the class, filename acquired
         in gui.py/filedialog.askopenfilename call"""
         self.filename = filename
         # Creates initial plot
@@ -44,7 +44,7 @@ class SliceGraph():
         return max_time
 
     def file_to_df(self, filename, start_time_str = "0", end_time_str = "0") -> pd.DataFrame:
-        """Helper function: [filename,start_time,end_time] 
+        """Helper function: [filename,start_time,end_time]
         - > [expected dataframe or None if fail]"""
         csv_cols = ["Time", "Sensor"] # Columns to be plotted
         delim = ","

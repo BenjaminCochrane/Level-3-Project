@@ -20,7 +20,8 @@ def test_number_datapoints() -> None:
     ys = []
 
     for i in range(0,10):
-        x,y, nodeID = mock_obj.get_latest()
+        listt=mock_obj.get_latest()[0]
+        x, y, nodeID =  listt[5],  listt[2],  listt[0]
         xs.append(x)
         ys.append(y)
 
@@ -29,14 +30,16 @@ def test_number_datapoints() -> None:
 
 def test_node_id() -> None:
     """Test that the node_id is valid"""
-    x,y, node_id = mock_obj.get_latest()
-    assert (type(node_id) == str)
+    listt=mock_obj.get_latest()[0]
+    nodeID = listt[0]
+    assert (type(nodeID) == str)
 
 def test_point_validity() -> None:
     """Test that the points are reasonable"""
 
     for i in range(0,10):
-        x,y,node_id = mock_obj.get_latest()
+        listt=mock_obj.get_latest()[0]
+        y  =  listt[2]
         assert (0 < y < 40)
 
 def test_string_representation() -> None:

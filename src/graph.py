@@ -7,98 +7,117 @@ be saved in a new file, appended to an existing file or overwritten in an existi
 file based on the user's choice.
 """
 
-from collections import defaultdict
+#from collections import defaultdict
 import matplotlib.pyplot as plt
 from matplotlib import animation
 import numpy as np
+import pandas as pd
 from serial_interface import SerialInterface
 from mock import Mock
+from packet_format import PacketFormat
 
 class AnimatedPlot():
     """Animation function for graphing"""
-    def __init__ (self, window = None, interface = 'mock'):
+    def __init__ (self, window = None, interface = 'serial'):
         """Constructor function for AnimPlot
             window specifies how many values should be used
             for the calculation of the running average
             (Allows latest values to have greater impact)
         """
-        self.node_dict = defaultdict(lambda: ([],[]))
+        expected_format = PacketFormat()
+        self.data = pd.DataFrame(columns = expected_format.__slots__)
+
         self.window = window
         if interface == "serial":
             self.interface = SerialInterface()
         if interface == "mock":
             self.interface  = Mock()
-
         self.fig, self.axis = plt.subplots()
-        #self.ani_playing = None
-        #self.current_data = []
-        self.animation = animation.FuncAnimation(self.fig, self.update, interval=25)
-        self.paused = False
+        self.instances={"animation":animation.FuncAnimation(self.fig,self.update, interval=25),
+                        "paused": False,
+                        "colors":{},
+                        "colors_count":0,
+                        }
+
+        color_map = plt.get_cmap('gist_rainbow')
+        for i in range(0,6):
+            self.instances["colors"][i]= color_map(1.*i/6)
+            # self.colors[i] = color_map(1.*i/6)
 
     def start_animation(self):
         '''Function to unpause animation'''
-        self.animation.resume()
-        self.paused = False
+        self.instances["animation"].resume()
+        # self.animation.resume()
+        self.instances["paused"] = False
+        # self.paused = False
 
     def stop_animation(self):
         '''Function to pause animation'''
-        self.animation.pause()
-        self.paused = True
+        # self.animation.pause()
+        self.instances["animation"].pause()
+        # self.paused = True
+        self.instances["paused"] =True
 
     def toggle_pause(self):
         '''Function to toggle the pausing of animation'''
-        if self.paused:
-            self.animation.resume()
+        # if self.paused:
+        if self.instances["paused"] :
+            # self.animation.resume()
+            self.instances["animation"].resume()
         else:
-            self.animation.pause()
-        self.paused = not self.paused
+            # self.animation.pause()
+            self.instances["animation"].pause()
+        self.instances["paused"] = not self.instances["paused"]
+        # self.paused = not self.paused
 
     def update(self, _):
         """Updates the graph with new plots
             num_nodes should only be specified when using the mock
         """
-        time, rssi_value, node_id = self.interface.get_values()
-    #    self.current_data.append([time, rssi_value, node_id])
-        self.node_dict[node_id][0].append(time)
-        self.node_dict[node_id][1].append(rssi_value)
-        #Running average
-        self.node_dict['running_average'][0].append(time)
-        if self.window:
-            count = min(self.window, len(self.node_dict[node_id][1]))
-            self.node_dict['running_average'][1].append(
-                sum(self.node_dict[node_id][1][len(self.node_dict[node_id][1]) - count:])/count
-            )
-        else:
-            self.node_dict['running_average'][1].append(
-                sum(self.node_dict[node_id][1])/len(self.node_dict[node_id][0])
-            )
+
+        data = self.interface.get_values()
+        if data:
+            for packet in data:
+                self.data.loc[-1] = packet
+                self.data.index = self.data.index + 1
+                self.data = self.data.sort_index()
 
         self.axis.clear()
-        for key, value in self.node_dict.items():
-            self.axis.plot(value[0], value[1], label=key)
+
+        self.data = self.data.sort_values(by='time')
+        time_slice = self.data
+
+        if len(self.data.index) > 0:
+            df_time = self.data.iloc[-1].time - 60
+            time_slice = self.data[self.data['time'] >= df_time]
+
+        for node in sorted(time_slice.node_id.unique()):
+            values = time_slice.loc[self.data['node_id'] == node]
+
+            #Assign color
+            # if not self.colors.get(node):
+            if not self.instances["colors"].get(node):
+                self.instances["colors"][node]= self.instances["colors"].pop(
+                    self.instances["colors_count"])
+                # self.colors[node] = self.colors.pop(self.colors_count)
+                # self.colors_count += 1
+                self.instances["colors_count"] +=1
+
+            # self.axis.plot(values['time'], values['rssi'], label=node, color=self.colors[node])
+            self.axis.plot(values['time'], values['rssi'], label=node,
+                           color=self.instances["colors"][node])
 
         self.axis.axes.set_xlabel("Time in seconds")
-        self.axis.axes.set_ylabel("RSSI Strength (ΔdBm)")
+        self.axis.axes.set_ylabel("RSSI Strength (dBm)")
 
         self.axis.grid(axis = 'y')
-        self.axis.legend()
-        title=plt.title("Frequency changes detected by sensor")
+        self.axis.legend(loc='upper left')
+        title=plt.title("Frequency changes detected by sensor (60s timeframe)")
         title.set_weight('bold')
 
     def get_current_data(self):
-        '''Return node dict in alternate format'''
-        data = []
-
-        for node_id, tup in self.node_dict.items():
-            print("tup:",tup)
-            time = tup[0]
-            rssi = tup[1]
-            #for i in range(0, len(time)):
-            for _, (time_val, rssi_val) in enumerate(zip(time, rssi)):
-                data.append([time_val, rssi_val, node_id])
-
-        sorted(data, key=lambda x: x[0])
-        return data
+        '''Returns self.data sorted by time'''
+        return self.data.sort_values(by=['time'])
 
     def __str__(self):
         return "graph"
@@ -109,13 +128,11 @@ class AnimatedPlot():
             return self.interface
         return None
 
-    def get_node_dict(self) -> dict:
-        """Returns node dict, used for testing"""
-        return self.node_dict
-
     def get_std_dev(self, node_id):
         """Returns the standard deviation of the RSSI values of a given node"""
-        return np.format_float_positional(np.std(self.node_dict[node_id]), precision=3)
+        node_values = self.data.loc[self.data['node_id'] == node_id, 'rssi'].tolist()
+
+        return np.format_float_positional(np.std(node_values),precision=3)
 
     def calculate_gradient(self, initial, final):
         """Get gradient between given points"""
@@ -184,32 +201,68 @@ class AnimatedPlot():
             piecewise subtraction
         """
 
-        node_1 = self.node_dict[node_id_1]
-        node_2 = self.node_dict[node_id_2]
+        node_id = 'diff_' + str(node_id_1) + '_' + str(node_id_2)
+
+        time_slice = self.data
+
+        if len(self.data.index) > 0:
+            df_time = self.data.iloc[-1].time - 60
+            time_slice = self.data[self.data['time'] >= df_time]
+
+        last_time_calculated = time_slice[time_slice['node_id'] == node_id]['time'].tolist()
+        if len(last_time_calculated) == 0:
+            last_time_calculated = 0
+        else:
+            last_time_calculated = last_time_calculated[-1]
+
+        node_1 = time_slice.loc[(time_slice['node_id'] == node_id_1)
+                                & (time_slice['time'] > last_time_calculated)]
+        node_2 = time_slice.loc[(time_slice['node_id'] == node_id_2)
+                                & (time_slice['time'] > last_time_calculated)]
+
+        node_1 = [node_1['time'].to_list(), node_1['rssi'].to_list()]
+        node_2 = [node_2['time'].to_list(), node_2['rssi'].to_list()]
 
         #Create a list of every unique timestamp in both nodes
-        times = sorted(list(set(node_1[0]+node_2[0])))
+        times_needed = [time for time in sorted(list(set(node_1[0]+node_2[0])))
+                        if time >= last_time_calculated]
 
-        node_1_list = self.calculate_node_at_all_times(node_1, times)
-        node_2_list = self.calculate_node_at_all_times(node_2, times)
+        node_1 = self.calculate_node_at_all_times(node_1, times_needed)
+        node_2 = self.calculate_node_at_all_times(node_2, times_needed)
 
-        diff = [[],[]]
 
+        node_data={"times":[], "differences":[] , "row":[]}
         #Get [[Times],[Difference between interpolated RSSI strengths at those times]]
-        for i in range (0, min(len(node_1_list[0]),len(node_2_list[0]))):
-            diff[0].append(max(node_1_list[0][i], node_2_list[0][i]))
-            diff[1].append(node_1_list[1][i] - node_2_list[1][i])
+        for i in range (0, min(len(node_1[0]),len(node_2[0]))):
+            node_data["times"].append(max(node_1[0][i], node_2[0][i]))
+            node_data["differences"].append(node_1[1][i] - node_2[1][i])
 
-        self.node_dict['diff_' + str(node_id_1) + '_' + str(node_id_2)] = diff
+        for time, diff in zip(node_data["times"] , node_data["differences"]):
+            node_data['row'] = []
+            for _, slot in enumerate(PacketFormat().__slots__):
+                if slot == 'node_id':
+                    node_data["row"].append(node_id)
+                elif slot == 'time':
+                    node_data["row"].append(time)
+                elif slot == 'rssi':
+                    node_data["row"].append(diff)
+                else:
+                    node_data["row"].append(None)
 
+            self.data.loc[-1] = node_data["row"]
+            self.data.index = self.data.index + 1
+            self.data = self.data.sort_index()
+
+    def reset_data(self):
+        '''Clears all data'''
+        expected_format = PacketFormat()
+        self.data = pd.DataFrame(columns = expected_format.__slots__)
+
+    def switch_interface(self, interface_object):
+        '''Switch interface to given interface object'''
+        self.interface = interface_object
 
 
     def set_window(self, window):
         '''Set self window as window'''
         self.window = window
-
-if __name__ == "__main__":
-    anim_plot = AnimatedPlot(interface = "serial")
-    anim = anim_plot.ani
-    plt.show()
-    print(anim_plot.get_std_dev('Mock0'))

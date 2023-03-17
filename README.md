@@ -17,7 +17,7 @@ The embedded system source code can be found [here](https://stgit.dcs.gla.ac.uk/
 
 ## Visuals
 
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+Need visuals here.
 
 ## Installation
 
@@ -27,7 +27,8 @@ Working on making this a compiled executable!
 
 - Connect the boards to a power source
 - Start the program.
--
+- Temporarily stop the graphing by using the toggle button at the top
+- Record your graph data using the Start Recording function and save it using the Stop Recording button
 ## Support
 
 If you find an issue with the functionality, our contact details can be found [here](https://stgit.dcs.gla.ac.uk/team-project-h/2022/sh16/sh16-main/-/wikis/home)!
@@ -37,8 +38,9 @@ If you find an issue with the functionality, our contact details can be found [h
 - ~~Create a minimum viable product (MVP) to present to the customer~~
 - ~~Build around the MVP as the baseline for the final product~~
 - ~~Accomodate incoming serial data, and be flexible with how to display it~~
-- [current] Ensure > 80% coverage for tests.
-- [current] Finalising the UI
+- ~~ Ensure good coverage for tests.~~
+- ~~Finalising the UI Design.~~
+- ~~Add additional functionality such as saving files and loading files!~~
 ## Contributing
 
 Not open to direct contributions, but if you find an problem with the functionality, feel free to open an issue and we'll get to working on it!
@@ -49,10 +51,9 @@ created by SH16:
 - Arturo Miguel Lameg
 - Alistair Johnston
 - Benjamin Cochrane
-- Faris Mohammed
+- Faris Bin Mussalam
 - Hana El Sherbeny
 - Martin Suchan
-
 
 ## License
 
@@ -60,4 +61,4 @@ This software is licensed under GPL3. More details can be found [here](https://w
 
 ## Project status
 
-Current working on it - and almost complete!
+Almost everything is working! Hang on!

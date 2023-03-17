@@ -37,19 +37,39 @@ def test_plot_type():
 
 def test_running_average():
     """Test that running average calculates correctly"""
-    for _ in range (0,9):
+    for _ in range(0, 9):
         anim_plot.update(125)
-    node_dict = anim_plot.get_node_dict()
-    assert(type(node_dict) == defaultdict)
-    assert(np.allclose(node_dict['running_average'][0][:10], [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5]))
-    assert(np.allclose(node_dict['running_average'][1][:10], [14.0, 13.0, 13.333333333333334, 12.75, 12.6, 12.333333333333334, 12.0, 11.625, 11.333333333333334, 11.0]))
+    node_dict = anim_plot.get_current_data()
+    node_dict_as_np = node_dict.to_numpy()
 
+    time_array = []
+    rssi_array = []
+    for data_entry in node_dict_as_np:
+            time_array.append(data_entry[5])
+            rssi_array.append(data_entry[2])
+
+    assert( time_array[:10] == [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5])
+    assert( rssi_array[:10] ==   [14.0, 12.0, 14.0, 11.0, 12.0, 11.0, 10.0, 9.0, 9.0, 8.0])
+  
 def test_standard_deviation():
     """Test that standard deviation calculations are correct"""
-    node_dict = anim_plot.get_node_dict()
-    std_dev_rounded = np.format_float_positional(np.std(node_dict['Mock0']), precision=3)
-    assert(std_dev_rounded == anim_plot.get_std_dev('Mock0'))
+    node_dict = anim_plot.get_current_data()
+    node_dict_as_np = node_dict.to_numpy()
 
+    time_array = []
+    rssi_array = []
+    for data_entry in node_dict_as_np:
+            # time_array.append(data_entry[2])
+            rssi_array.append(data_entry[2])
+
+
+    # node_dict = anim_plot.get_current_data()
+    std_dev_rounded = np.format_float_positional(np.std(rssi_array), precision=3)
+    assert abs(float(std_dev_rounded )- float(anim_plot.get_std_dev('Mock0'))) <= 0.1
+    # assert(std_dev_rounded == anim_plot.get_std_dev('Mock0'))
+
+ 
+ 
 def test_calculate_gradient():
     """Test the gradient is calculated correctly"""
     assert(1 == anim_plot.calculate_gradient([1,1],[2,2]))
@@ -64,7 +84,10 @@ def test_get_serial_interface():
     
 def test_calculate_node_diff():
     """Test the node diff"""
-    node_dict = anim_plot.get_node_dict()
+    node_dict = anim_plot.get_current_data().to_dict()
+ 
+
+    # keys = [k for k in node_dict.node_id.unique()]
     keys = [k for k in node_dict.keys()]
     anim_plot.calculate_node_diff(keys[0], keys[1])
     assert(True)
