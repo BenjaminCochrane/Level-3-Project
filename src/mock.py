@@ -30,7 +30,7 @@ class Mock():
         '''Keep same interface for mock and serial_interface classes'''
         return None
 
-    def get_values(self, count = 1):
+    def get_values(self, count = 2):
         '''Keep same interface for mock and serial_interface classes'''
         while not self.count:
             self.set_mock_file()
@@ -40,12 +40,34 @@ class Mock():
         """Returns a tuple containing the nodeID , time (x) , and RSSI (y)"""
 
         node_id = self.name + str(self.counter % count)
+        if self.data.get(['node_id']):
+            node_id = self.data["node_id"][self.counter % count]
+
+        reference = 'reference'
+        if self.data.get(["reference"]):
+            reference = self.data["reference"][self.counter % count]
+
         time = self.data["Time"][min(self.counter, self.count-1)]
         sensor = self.data["Diff"][self.counter % self.count]
+
+        frequency = 'frequency'
+        if self.data.get(["frequency"]):
+            frequency = self.data["frequency"][self.counter % self.count]
+
+        transmitter = 'transmitter_power'
+        if self.data.get(['transmitter_power']):
+            transmitter = self.data["transmitter_power"][self.counter % self.count]
+
         self.counter += 1
         if self.counter > self.count:
             time += (self.counter-self.count) * self.data["Time"][0]
-        return [ float(time),float(sensor),node_id ]
+        return [[
+            node_id,
+            reference,
+            float(sensor),
+            frequency,
+            transmitter,
+            float(time)]]
 
     def __str__(self):
         """Return data as a string"""

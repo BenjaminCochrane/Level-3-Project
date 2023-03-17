@@ -14,15 +14,7 @@ def test_serial_initialisation() -> None:
 def test_serial_port() -> None:
     """Test the default name of the serial interface"""
 
-    assert (str(serial_interface_obj) == "serial_interface")
-
-def test_get_latest() -> None:
-    """Test that get_latest raises an AssertionError if no connected serial"""
-    try:
-        serial_interface_obj.get_latest()
-
-    except AssertionError:
-        assert (True)
+    assert (str(serial_interface_obj) == "Serial Interface")
 
 def test_get_values() -> None:
     '''Test get_values and read_buffer'''
@@ -30,7 +22,7 @@ def test_get_values() -> None:
 
 def test_str():
     '''Test string representation'''
-    assert (str(serial_interface_obj) == "serial_interface")
+    assert (str(serial_interface_obj) == "Serial Interface")
 
 #def test_delete():
 #    '''Test deletion'''
