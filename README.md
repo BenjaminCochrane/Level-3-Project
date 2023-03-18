@@ -7,21 +7,26 @@
 
 ## Name
 
-Long Range Radio Frequency Sensing Graphical User Interface
+SH16 - Embedded Systems Graphing Tool
 
 ## Description
 
-The project will develop embedded (C/C++, for an Arm MCU dev. kit) and host (python preferred) control software for interfacing with wireless RF sensors. The works builds on existing research on using antennas as sensors [https://ieeexplore.ieee.org/document/9795916], which can be extended to a long-range network with the aid of a software platform for visualization.The embedded software for the node(s) will handle the transmission of the signals, to be used for sensing, and the embedded gateway will receive and decode the information before uploading in real-time (via serial) to a host PC. A PC software would ideally be able to display and visualize the received data in real-time, with possible extensions in the post-processing of the data and its labelling for ML training etc.The main objective is a functional prototype which can be used to collect research data from in-house antenna-based sensors and visualize it in real-time for demonstrators. The "prototype" will be disseminated alongside the existing hardware as an open-source resource alongside arising research outputs. 
+This project uses Python's Tkinter library as the basis for it's graphical user interface. It also utilises the matplotlib (plt) library to graph data, as well as other libraries found in the requirements document available in the repository. This software is used to graph data passed by embedded systems.
 
-The embedded system source code can be found [here](https://stgit.dcs.gla.ac.uk/team-project-h/2022/ese1/ese1-main).
-
-## Visuals
-
-Need visuals here.
 
 ## Installation
 
-Working on making this a compiled executable! 
+Run this command to ensure all packages used are installed!
+
+pip install -r requirements.txt
+
+or 
+
+python -m pip install -r requirements.txt
+
+Then run this in your terminal to run the program:
+
+python -m gui
 
 ## Usage
 
@@ -61,4 +66,12 @@ This software is licensed under GPL3. More details can be found [here](https://w
 
 ## Project status
 
-Almost everything is working! Hang on!
+Everything works! Thank you for your patience! 
+
+## Visuals
+
+![image1](images/1.png)
+![image2](images/2.png)
+![image3](images/3.png)
+![image4](images/4.png)
+![image5](images/5.png)
