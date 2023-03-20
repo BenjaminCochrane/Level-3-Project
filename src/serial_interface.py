@@ -9,7 +9,7 @@ import serial
 import serial.tools.list_ports
 from packet_format import PacketFormat
 
-MAX_VALUE = 2 ** 32 / (4*10e6 / 1*10e3)
+MAX_VALUE = 2 ** 32 / 4000
 
 logging.basicConfig(
     filename=str(datetime.datetime.now().strftime("%Y-%m-%d %H_%M")) + ".log",
